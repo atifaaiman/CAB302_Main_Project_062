@@ -69,19 +69,7 @@ public class Server {
 			}
 		} catch (IOException e) {
 			System.err.println(e);
-
 		}
-	}
-
-	/**
-	 * The main method to run the server
-	 *
-	 * @param args the arguments
-	 */
-	public static void main(String[] args) {
-
-		Server server = new Server();
-		server.start();
 	}
 
 }

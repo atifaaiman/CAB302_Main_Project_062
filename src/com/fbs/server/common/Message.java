@@ -62,6 +62,11 @@ public interface Message extends Serializable {
 	 * Used for testing purpose.*/
 	public static final int TEST_COMMAND = 17;
 
+
+	// ADD BY FERNANDO  *********************************************************************
+	/** The Constant BILLBOARD_EXISTS */
+	public static final int FAILED_BILLBOARD_EXISTS = 18;  // 9 FOR TEST BUT MUT BE 18
+
 	/**
 	 * Command to (or from) the server. For example, if it is LOGIN, then server
 	 * tries to login the user and if success, it sends {@link Message} with this
@@ -74,35 +79,30 @@ public interface Message extends Serializable {
 
 	/**
 	 * File to specify xml data for billboard to be displayed.
-	 *
 	 * @return the byte[]
 	 */
 	public byte[] file();
 
 	/**
 	 * Filename of xml file.
-	 *
 	 * @return the string representation of filename
 	 */
 	public String filename();
 
 	/**
 	 * Username when user tries to login.
-	 *
 	 * @return the string representation of username
 	 */
 	public String username();
 
 	/**
 	 * Password when user tries to login.
-	 *
 	 * @return the string representation of password
 	 */
 	public String password();
 
 	/**
 	 * Token - unique session identifier between server and client (control panel).
-	 *
 	 * @return the string representation of token
 	 */
 	public String token();
@@ -119,42 +119,36 @@ public interface Message extends Serializable {
 
 	/**
 	 * Users objects once requested by the user with {@link Permission#EDIT_USERS}
-	 *
 	 * @return the list of {@link User} objects
 	 */
 	public List<User> users();
 
 	/**
 	 * User to add/edit/delete {@link User}.
-	 *
 	 * @return the user
 	 */
 	public User user();
 
 	/**
 	 * Schedule to add new {@link Schedule}
-	 *
 	 * @return the schedule
 	 */
 	public Schedule schedule();
 
 	/**
 	 * Billboards list to update table on GUI.
-	 *
 	 * @return the list
 	 */
 	public List<Billboard> billboards();
 
 	/**
 	 * Schedules list to update table on GUI.
-	 *
 	 * @return the list
 	 */
 	public List<Schedule> schedules();
 
 	/**
 	 * Billboard to add/edit/delete billboard.
-	 *
 	 * @return the billboard
 	 */
 	public Billboard billboard();

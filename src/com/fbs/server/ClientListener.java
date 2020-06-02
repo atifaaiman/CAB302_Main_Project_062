@@ -44,8 +44,12 @@ public class ClientListener implements Runnable {
 	 */
 	private Map<String, Timer> tokenTimerMap = new HashMap<>();
 
-	/** The token permission map. */
-	private Map<String, String> tokenPermissionMap = new HashMap<>();
+	/** The token permission map.
+	 * Stores token as a key and User object as a value.Once session expires, record
+	 * 	 * removed.
+	 * */
+	//private Map<String, String> tokenPermissionMap = new HashMap<>(); // Old code
+	private Map<String, User> tokenPermissionMap = new HashMap<>(); 	// New code
 
 	/** The Constant SESSION_PERIOD. */
 	private final static long SESSION_PERIOD = 24 * 60 * 60 * 1000;
@@ -160,6 +164,55 @@ public class ClientListener implements Runnable {
 		}
 	}
 
+   // -------------------------------------------- BILLBOARDS ----------------------------------------------------------
+	/**
+	 * Adds the billboard. First, checks permission, then adds author (username) who
+	 * creates a billboard, finally connects to the database to add a new entry to
+	 * 'billboard' table.
+	 *
+	 * @param msg the {@link Message}}
+	 * @param oos the output stream to write responses
+	 * @throws IOException  Signals that an I/O exception has occurred.
+	 * @throws SQLException the SQL exception
+	 */
+	private void addBillboard(Message msg, ObjectOutputStream oos) throws IOException, SQLException {
+		//if (msg.token() != null && tokenPermissionMap.get(msg.token()).equals(Permission.CREATE_BILLBOARDS)) { 		// Old code
+		if (msg.token() != null && tokenPermissionMap.get(msg.token()).getCreate_billboards().equals(true)) {	  		// New code
+			String username = tokenUserMap.get(msg.token());
+			Billboard billboard = msg.billboard();
+			billboard.setUsername(username);
+
+			// If billboard name does not exist  																		// New Added by Fernando
+			if( !DB.doesBillboardNameExist(billboard.getName())){  														// New added by Fernando
+				DB.addBillboard(billboard);																				// New added by Fernando
+			}
+			else{
+				oos.writeObject(MessageBuilder.build(null, null, FAILED_BILLBOARD_EXISTS, null, null,					// New added by Fernando
+						msg.token(), null, null, null, null, null, null, null));		// New added by Fernando
+			}
+
+
+		} else {
+			oos.writeObject(MessageBuilder.build(null, null, NO_PERMISSION, null, null,
+					msg.token(), null, null, null, null, null, null, null));
+		}
+	}
+
+	/**
+	 * Billboards is returned by request to update table with them. All users will
+	 * be able to access a list of all billboards on the system and preview their
+	 * contents, so there is no checking permission.
+	 * @param msg the {@link Message}}
+	 * @param oos the output stream to write responses
+	 * @throws SQLException the SQL exception
+	 * @throws IOException  Signals that an I/O exception has occurred.
+	 */
+	private void billboards(Message msg, ObjectOutputStream oos) throws SQLException, IOException {
+		List<Billboard> billboards = DB.getBillboards();
+		oos.writeObject(MessageBuilder.build(null, null, BILLBOARDS, null, null, msg.token(),
+				null, null, null, null, billboards, null, null));
+	}
+
 	/**
 	 * Edits the billboard.
 	 *
@@ -170,7 +223,8 @@ public class ClientListener implements Runnable {
 	 */
 	private void editBillboard(Message msg, ObjectOutputStream oos) throws IOException, SQLException {
 		if (msg.token() != null) {
-			if (tokenPermissionMap.get(msg.token()).equals(Permission.CREATE_BILLBOARDS)) {
+			//if (tokenPermissionMap.get(msg.token()).equals(Permission.CREATE_BILLBOARDS)) {  // Old code
+			if (tokenPermissionMap.get(msg.token()).getCreate_billboards().equals(true)) {     // New code
 				if (msg.billboard().getUsername().equals(tokenUserMap.get(msg.token()))) {
 					if (!DB.isScheduled(msg.billboard().getName())) {
 						DB.updateBillboard(msg.billboard());
@@ -183,21 +237,32 @@ public class ClientListener implements Runnable {
 				 * delete any billboard on the system, including billboards that are currently
 				 * scheduled.
 				 */
-			} else if (tokenPermissionMap.get(msg.token()).equals(Permission.EDIT_ALL_BILLBOARDS)) {
+			//} else if (tokenPermissionMap.get(msg.token()).equals(Permission.EDIT_ALL_BILLBOARDS)) {      // Old code
+			}
+			if (tokenPermissionMap.get(msg.token()).getEdit_all_billboards().equals(true)) {         		// New code
+				// System.out.println("Calling DB.updateBillboard...");
 				DB.updateBillboard(msg.billboard());
+				System.out.println("DB.updateBillboard called!");
 				return;
 			}
 		}
+		// DEBUG ADDED BY FERNANDO
+		//System.out.println("Method editBillboard Class ClientLisnetes");
+		//System.out.println("1 if: " + (msg.token() != null));
+		//System.out.println("2 if: " + tokenPermissionMap.get(msg.token()).getCreate_billboards().equals(true));
+		//System.out.println("3 if: " +msg.billboard().getUsername().equals(tokenUserMap.get(msg.token())));
+		//System.out.println("4 if: " + (!DB.isScheduled(msg.billboard().getName())));
+		//System.out.println("5 if: " +tokenPermissionMap.get(msg.token()).getEdit_all_billboards().equals(true));
 
-		oos.writeObject(MessageBuilder.build(null, null, NO_PERMISSION, null, null, msg.token(), null, null, null, null,
-				null, null, null));
+
+		oos.writeObject(MessageBuilder.build(null, null, NO_PERMISSION, null, null, msg.token(),
+				null, null, null, null, null, null, null));
 	}
 
 	/**
 	 * Users with the “Create Billboards” permission will also be able to edit or
 	 * delete any billboards they created, as long as those billboards are not
 	 * presently scheduled.
-	 *
 	 * @param msg the {@link Message}}
 	 * @param oos the output stream to write responses
 	 * @throws IOException  Signals that an I/O exception has occurred.
@@ -206,7 +271,8 @@ public class ClientListener implements Runnable {
 	private void deleteBillboard(Message msg, ObjectOutputStream oos) throws IOException, SQLException {
 
 		if (msg.token() != null) {
-			if (tokenPermissionMap.get(msg.token()).equals(Permission.CREATE_BILLBOARDS)) {
+			//if (tokenPermissionMap.get(msg.token()).equals(Permission.CREATE_BILLBOARDS)) {   // Old code
+			if (tokenPermissionMap.get(msg.token()).getCreate_billboards().equals(true)) {		// New code
 				if (msg.billboard().getUsername().equals(tokenUserMap.get(msg.token()))) {
 					if (!DB.isScheduled(msg.billboard().getName())) {
 						DB.deleteBillboard(msg.billboard().getName());
@@ -219,34 +285,51 @@ public class ClientListener implements Runnable {
 				 * delete any billboard on the system, including billboards that are currently
 				 * scheduled.
 				 */
-			} else if (tokenPermissionMap.get(msg.token()).equals(Permission.EDIT_ALL_BILLBOARDS)) {
+			//} else if (tokenPermissionMap.get(msg.token()).equals(Permission.EDIT_ALL_BILLBOARDS)) {  // Old code
+			} else if (tokenPermissionMap.get(msg.token()).getEdit_all_billboards().equals(true)) {		// New code
+
 				DB.deleteBillboard(msg.billboard().getName());
 				return;
 			}
 		}
 
-		oos.writeObject(MessageBuilder.build(null, null, NO_PERMISSION, null, null, msg.token(), null, null, null, null,
-				null, null, null));
+		oos.writeObject(MessageBuilder.build(null, null, NO_PERMISSION, null, null, msg.token(),
+				null, null, null, null, null, null, null));
 	}
 
 	/**
-	 * Adds the billboard. First, checks permission, then adds author (username) who
-	 * creates a billboard, finally connects to the database to add a new entry to
-	 * 'billboard' table.
-	 *
+	 * Sends billboard xml file to the viewer.
 	 * @param msg the {@link Message}}
 	 * @param oos the output stream to write responses
 	 * @throws IOException  Signals that an I/O exception has occurred.
 	 * @throws SQLException the SQL exception
 	 */
-	private void addBillboard(Message msg, ObjectOutputStream oos) throws IOException, SQLException {
-		if (msg.token() != null && tokenPermissionMap.get(msg.token()).equals(Permission.CREATE_BILLBOARDS)) {
-			String username = tokenUserMap.get(msg.token());
-			Billboard billboard = msg.billboard();
-			billboard.setUsername(username);
-			DB.addBillboard(billboard);
+	private void sendBillboard(Message msg, ObjectOutputStream oos) throws IOException, SQLException {
+		Billboard b = msg.billboard();
+
+		byte[] xml = DB.getXML(b.getName());
+		oos.writeObject(MessageBuilder.build("billboard.xml", xml, msg.command(), null, null,
+				null, null, null, null, null, null, null, null));
+	}
+
+
+	// -------------------------------------------- SCHEDULE  ----------------------------------------------------------
+
+	/**
+	 * Adds the schedule. First, check permission, then connect to the database to
+	 * add new record to 'schedule' table. Otherwise responds with 'no permission'.
+	 * @param msg the {@link Message}}
+	 * @param oos the output stream to write responses
+	 * @throws IOException  Signals that an I/O exception has occurred.
+	 * @throws SQLException the SQL exception
+	 */
+	private void addSchedule(Message msg, ObjectOutputStream oos) throws IOException, SQLException {
+		//if (msg.token() != null && tokenPermissionMap.get(msg.token()).equals("Schedule Billboards")) {   			// Old code
+		if (msg.token() != null && tokenPermissionMap.get(msg.token()).getSchedule_billboards().equals(true)) {			// New code
+			DB.addSchedule(msg.schedule());
 		} else {
-			oos.writeObject(MessageBuilder.build(null, null, NO_PERMISSION, null, null, msg.token(), null, null, null,
+			oos.writeObject(MessageBuilder.build(null, null, NO_PERMISSION, null,
+					null, msg.token(), null, null, null,
 					null, null, null, null));
 		}
 	}
@@ -256,107 +339,26 @@ public class ClientListener implements Runnable {
 	 * allows receiving schedules for client to display viewers (see BillboardViewer
 	 * project). Control Panel client must have
 	 * {@link Permission#SCHEDULE_BILLBOARDS} permission to access schedules.
-	 *
 	 * @param msg the {@link Message}}
 	 * @param oos the output stream to write responses
 	 * @throws SQLException the SQL exception
 	 * @throws IOException  Signals that an I/O exception has occurred.
 	 */
 	private void schedules(Message msg, ObjectOutputStream oos) throws SQLException, IOException {
-		if (msg.token().equals("viewer")
-				|| msg.token() != null && tokenPermissionMap.get(msg.token()).equals(Permission.SCHEDULE_BILLBOARDS)) {
+		//if (msg.token().equals("viewer")																					// Old code
+		//		|| msg.token() != null && tokenPermissionMap.get(msg.token()).equals(Permission.SCHEDULE_BILLBOARDS)) {		// Old code
+		if (msg.token().equals("viewer")																					// New code
+				|| msg.token() != null && tokenPermissionMap.get(msg.token()).getSchedule_billboards().equals(true)) {		// New code
 			List<Schedule> schedules = DB.getSchedules();
-			oos.writeObject(MessageBuilder.build(null, null, SCHEDULES, null, null, msg.token(), null, null, null, null,
-					null, schedules, null));
+			oos.writeObject(MessageBuilder.build(null, null, SCHEDULES, null, null,
+					msg.token(), null, null, null, null, null, schedules, null));
 		} else {
-			oos.writeObject(MessageBuilder.build(null, null, NO_PERMISSION, null, null, msg.token(), null, null, null,
-					null, null, null, null));
+			oos.writeObject(MessageBuilder.build(null, null, NO_PERMISSION, null, null,
+					msg.token(), null, null, null, null, null, null, null));
 		}
 	}
 
-	/**
-	 * Billboards is returned by request to update table with them. All users will
-	 * be able to access a list of all billboards on the system and preview their
-	 * contents, so there is no checking permission.
-	 *
-	 * @param msg the {@link Message}}
-	 * @param oos the output stream to write responses
-	 * @throws SQLException the SQL exception
-	 * @throws IOException  Signals that an I/O exception has occurred.
-	 */
-	private void billboards(Message msg, ObjectOutputStream oos) throws SQLException, IOException {
-		List<Billboard> billboards = DB.getBillboards();
-		oos.writeObject(MessageBuilder.build(null, null, BILLBOARDS, null, null, msg.token(), null, null, null, null,
-				billboards, null, null));
-	}
-
-	/**
-	 * Adds the schedule. First, check permission, then connect to the database to
-	 * add new record to 'schedule' table. Otherwise responds with 'no permission'.
-	 *
-	 * @param msg the {@link Message}}
-	 * @param oos the output stream to write responses
-	 * @throws IOException  Signals that an I/O exception has occurred.
-	 * @throws SQLException the SQL exception
-	 */
-	private void addSchedule(Message msg, ObjectOutputStream oos) throws IOException, SQLException {
-		if (msg.token() != null && tokenPermissionMap.get(msg.token()).equals("Schedule Billboards")) {
-			DB.addSchedule(msg.schedule());
-		} else {
-			oos.writeObject(MessageBuilder.build(null, null, NO_PERMISSION, null, null, msg.token(), null, null, null,
-					null, null, null, null));
-		}
-	}
-
-	/**
-	 * Deletes user. First, checks whether permission allows to delete user, checks
-	 * whether the user wants to delete himself (if so, respond with 'no
-	 * permission'), finally connects to database to delete user entry from 'user'
-	 * table. Note, salt for that user is deleted as well, but in
-	 * {@link DB#deleteUser(User)} method.
-	 *
-	 * @param msg the {@link Message}}
-	 * @param oos the output stream to write responses
-	 * @throws IOException  Signals that an I/O exception has occurred.
-	 * @throws SQLException the SQL exception
-	 */
-	private void deleteUser(Message msg, ObjectOutputStream oos) throws IOException, SQLException {
-		if (msg.token() != null && tokenPermissionMap.get(msg.token()).equals("Edit Users")) {
-
-			// Cannot delete himself.
-			if (msg.user().getUsername().equals(tokenUserMap.get(msg.token()))) {
-				oos.writeObject(MessageBuilder.build(null, null, NO_PERMISSION, null, null, msg.token(), null, null,
-						null, null, null, null, null));
-			} else {
-				DB.deleteUser(msg.user());
-			}
-		} else {
-			oos.writeObject(MessageBuilder.build(null, null, NO_PERMISSION, null, null, msg.token(), null, null, null,
-					null, null, null, null));
-		}
-	}
-
-	/**
-	 * Logouts the user. Removes tokens from all maps (see
-	 * {@link ClientListener#tokenUserMap}, etc.) to make sure no one can access
-	 * data with this token anymore.
-	 *
-	 * @param msg the {@link Message}}
-	 * @param oos the output stream to write responses
-	 * @throws IOException Signals that an I/O exception has occurred.
-	 */
-	private void logout(Message msg, ObjectOutputStream oos) throws IOException {
-		if (msg.token() != null && tokenUserMap.containsKey(msg.token())) {
-			tokenUserMap.remove(msg.token());
-			tokenTimerMap.remove(msg.token()).cancel();
-			tokenPermissionMap.remove(msg.token());
-			oos.writeObject(MessageBuilder.build(null, null, LOGOUT, null, null, msg.token(), null, null, null, null,
-					null, null, null));
-		} else {
-			oos.writeObject(MessageBuilder.build(null, null, NO_PERMISSION, null, null, msg.token(), null, null, null,
-					null, null, null, null));
-		}
-	}
+	// --------------------------------------------   USER    ----------------------------------------------------------
 
 	/**
 	 * Adds the user. First, checks permission to add a new user, then hashes
@@ -369,7 +371,8 @@ public class ClientListener implements Runnable {
 	 * @throws NoSuchAlgorithmException the no such algorithm exception
 	 */
 	private void addUser(Message msg, ObjectOutputStream oos) throws IOException, NoSuchAlgorithmException {
-		if (msg.token() != null && tokenPermissionMap.get(msg.token()).equals("Edit Users")) {
+		//if (msg.token() != null && tokenPermissionMap.get(msg.token()).equals("Edit Users")) {   						// Old code
+		if (msg.token() != null && tokenPermissionMap.get(msg.token()).getEdit_users().equals(true)) {					// New code
 
 			try {
 				User user = msg.user();
@@ -393,11 +396,44 @@ public class ClientListener implements Runnable {
 				DB.addSalt(user.getUsername(), saltStr);
 
 			} catch (SQLException exc) {
-				oos.writeObject(MessageBuilder.build(null, null, FAILED_USERNAME_EXISTS, null, null, msg.token(), null,
-						null, null, null, null, null, null));
+				oos.writeObject(MessageBuilder.build(null, null, FAILED_USERNAME_EXISTS, null,
+						null, msg.token(), null, null, null, null, null,
+						null, null));
 			}
 		} else {
-			oos.writeObject(MessageBuilder.build(null, null, NO_PERMISSION, null, null, msg.token(), null, null, null,
+			oos.writeObject(MessageBuilder.build(null, null, NO_PERMISSION, null, null,
+					msg.token(), null, null, null, null, null, null,
+					null));
+		}
+	}
+
+	/**
+	 * Deletes user. First, checks whether permission allows to delete user, checks
+	 * whether the user wants to delete himself (if so, respond with 'no
+	 * permission'), finally connects to database to delete user entry from 'user'
+	 * table. Note, salt for that user is deleted as well, but in
+	 * {@link DB#deleteUser(User)} method.
+	 *
+	 * @param msg the {@link Message}}
+	 * @param oos the output stream to write responses
+	 * @throws IOException  Signals that an I/O exception has occurred.
+	 * @throws SQLException the SQL exception
+	 */
+	private void deleteUser(Message msg, ObjectOutputStream oos) throws IOException, SQLException {
+		//if (msg.token() != null && tokenPermissionMap.get(msg.token()).equals("Edit Users")) {		// Old code
+		if (msg.token() != null && tokenPermissionMap.get(msg.token()).getEdit_users().equals(true)) {	// New code
+
+			// Cannot delete himself.
+			if (msg.user().getUsername().equals(tokenUserMap.get(msg.token()))) {
+				oos.writeObject(MessageBuilder.build(null, null, NO_PERMISSION, null, null,
+						msg.token(), null, null, null, null, null, null,
+						null));
+			} else {
+				DB.deleteUser(msg.user());
+			}
+		} else {
+			oos.writeObject(MessageBuilder.build(null, null, NO_PERMISSION, null, null,
+					msg.token(), null, null, null,
 					null, null, null, null));
 		}
 	}
@@ -416,27 +452,19 @@ public class ClientListener implements Runnable {
 	private void updateUser(Message msg, ObjectOutputStream oos)
 			throws SQLException, IOException, NoSuchAlgorithmException {
 
-		String permission = msg.permission(); // Here permission can be multiple permissions
-		// separated by comma.
-		String permissions[] = permission.split(",");
-		boolean accessGranted = false;
-		for (String perm: permissions) {
-			if (perm.equals("Edit Users")) {
-				accessGranted = true;
-				break;
-			}
-		}
-//		if (msg.token() != null && tokenPermissionMap.get(msg.token()).equals("Edit Users")) {
-		if (msg.token() != null && accessGranted) {
+		//if (msg.token() != null && tokenPermissionMap.get(msg.token()).equals("Edit Users")) {  						// Old code
+		if (msg.token() != null && tokenPermissionMap.get(msg.token()).getEdit_users().equals(true)) {  				// New code
 
 			/*
 			 * Administrators will not be able to remove their own “Edit Users” permission-
 			 * however they can remove the “Edit Users” permission from other
 			 * administrators.
 			 */
-			if (msg.user().getUsername().equals(tokenUserMap.get(msg.token()))) { // If update himself.
-				if (!msg.user().getPermission().equals(tokenPermissionMap.get(msg.token()))) {
-					oos.writeObject(MessageBuilder.build(null, null, NO_PERMISSION, null, null, msg.token(), null, null,
+			if (msg.user().getUsername().equals(tokenUserMap.get(msg.token()))) { 										// If update himself.
+				//if (!msg.user().getPermission().equals(tokenPermissionMap.get(msg.token()))) { 						// Old code
+				if (!msg.user().getEdit_users().equals(tokenPermissionMap.get(msg.token()).getEdit_users())) {			// New user
+					oos.writeObject(MessageBuilder.build(null, null, NO_PERMISSION,
+							null, null, msg.token(), null, null,
 							null, null, null, null, null));
 					return;
 				}
@@ -445,7 +473,7 @@ public class ClientListener implements Runnable {
 
 			if (!user.getOldPassword().equals(user.getPassword())) {
 				String salt = DB.getSalt(msg.user().getUsername()); // Obtain salt from database.
-				user.setPassword(user.getPassword() + salt); // Add salt.
+				user.setPassword(user.getPassword() + salt); 		// Add salt.
 
 				// Hash second time.
 				MessageDigest md = MessageDigest.getInstance("MD5");
@@ -454,8 +482,9 @@ public class ClientListener implements Runnable {
 			}
 			DB.updateUser(msg.user());
 		} else {
-			oos.writeObject(MessageBuilder.build(null, null, NO_PERMISSION, null, null, msg.token(), null, null, null,
-					null, null, null, null));
+			oos.writeObject(MessageBuilder.build(null, null, NO_PERMISSION, null, null,
+					msg.token(), null, null, null, null, null, null,
+					null));
 		}
 	}
 
@@ -471,32 +500,20 @@ public class ClientListener implements Runnable {
 	 */
 	private void users(Message msg, ObjectOutputStream oos) throws IOException, SQLException {
 
-		if (msg.token() != null && tokenPermissionMap.get(msg.token()).equals("Edit Users")) {
-			oos.writeObject(MessageBuilder.build(null, null, USERS, null, null, msg.token(), null, DB.getUsers(), null,
-					null, null, null, null));
+		//if (msg.token() != null && tokenPermissionMap.get(msg.token())..equals("Edit Users")) {   						// Old code
+		if (msg.token() != null && tokenPermissionMap.get(msg.token()).getEdit_users().equals(true)) {  					// New user
+			oos.writeObject(MessageBuilder.build(null, null, USERS, null, null, msg.token(),
+					null, DB.getUsers(), null, null, null, null, null));
 		} else {
 			if (msg.token() != null) {
-				oos.writeObject(MessageBuilder.build(null, null, NO_PERMISSION, null, null, msg.token(), null, null,
-						null, null, null, null, null));
+				oos.writeObject(MessageBuilder.build(null, null, NO_PERMISSION, null, null,
+						msg.token(), null, null, null, null, null, null,
+						null));
 			}
 		}
 	}
 
-	/**
-	 * Sends billboard xml file to the viewer.
-	 *
-	 * @param msg the {@link Message}}
-	 * @param oos the output stream to write responses
-	 * @throws IOException  Signals that an I/O exception has occurred.
-	 * @throws SQLException the SQL exception
-	 */
-	private void sendBillboard(Message msg, ObjectOutputStream oos) throws IOException, SQLException {
-		Billboard b = msg.billboard();
-		
-		byte[] xml = DB.getXML(b.getName());
-		oos.writeObject(MessageBuilder.build("billboard.xml", xml, msg.command(), null, null, null, null, null, null,
-				null, null, null, null));
-	}
+    // ------------------------------------------------  LOGIN  --------------------------------------------------------
 
 	/**
 	 * Logins the user. Checks credentials in database, the retrieves permission and
@@ -564,10 +581,13 @@ public class ClientListener implements Runnable {
 					}).start();
 
 					// Finally, retrieve permission from database.
-					String permission = DB.getPermission(username);
-					tokenPermissionMap.put(token, permission);
+					//String permission = DB.getPermission(username);   // Old code
+					User user = DB.getPermission(username);			    // New code
 
-					oos.writeObject(MessageBuilder.build(null, null, LOGIN, msg.username(), null, token, permission,
+					//tokenPermissionMap.put(token, permission);		// Old code
+					tokenPermissionMap.put(token, user);  				// New code
+
+					oos.writeObject(MessageBuilder.build(null, null, LOGIN, msg.username(), null, token, user.getPermission(),  // Old code: permission
 							null, null, null, null, null, null));
 					return;
 				}
@@ -575,5 +595,30 @@ public class ClientListener implements Runnable {
 		}
 		oos.writeObject(MessageBuilder.build(INVALID_CREDENTIALS));
 	}
+
+	// -----------------------------------------------  LOGOUT  --------------------------------------------------------
+
+	/**
+	 * Logouts the user. Removes tokens from all maps (see
+	 * {@link ClientListener#tokenUserMap}, etc.) to make sure no one can access
+	 * data with this token anymore.
+	 *
+	 * @param msg the {@link Message}}
+	 * @param oos the output stream to write responses
+	 * @throws IOException Signals that an I/O exception has occurred.
+	 */
+	private void logout(Message msg, ObjectOutputStream oos) throws IOException {
+		if (msg.token() != null && tokenUserMap.containsKey(msg.token())) {
+			tokenUserMap.remove(msg.token());
+			tokenTimerMap.remove(msg.token()).cancel();
+			tokenPermissionMap.remove(msg.token());
+			oos.writeObject(MessageBuilder.build(null, null, LOGOUT, null, null,
+					msg.token(), null, null, null, null, null, null, null));
+		} else {
+			oos.writeObject(MessageBuilder.build(null, null, NO_PERMISSION, null, null,
+					msg.token(), null, null, null, null, null, null, null));
+		}
+	}
+
 
 }

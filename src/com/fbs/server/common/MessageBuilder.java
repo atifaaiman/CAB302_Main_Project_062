@@ -20,9 +20,7 @@ public class MessageBuilder {
 	 * @param username the username
 	 * @param password the password
 	 * @param token the token
-	 * @param permission the permission. Here we can use more than one permission
-	 *                   separated by comma. For example:
-	 *                   String permission = "Edit Users,Create Billboards,Edit All Billboards";
+	 * @param permission the permission
 	 * @param users the users
 	 * @param user the user
 	 * @param schedule the schedule
@@ -69,7 +67,6 @@ public class MessageBuilder {
 				return token;
 			}
 
-			// Returns multiple permissions separated by comma
 			@Override
 			public String permission() {
 				return permission;
@@ -125,6 +122,7 @@ public class MessageBuilder {
 	 * @param command the command
 	 * @return the message
 	 */
+
 	public static Message build(int command) {
 		return build(null, null, command, null, null, null, null, null, null, null, null, null, null);
 	}
@@ -151,4 +149,8 @@ public class MessageBuilder {
 	public static Message build(int command, String token) {
 		return build(null, null, command, null, null, token, null, null, null, null, null, null, null);
 	}
+
+
+
+
 }

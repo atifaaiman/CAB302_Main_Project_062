@@ -1,4 +1,5 @@
-import static junit.framework.Assert.assertEquals;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;

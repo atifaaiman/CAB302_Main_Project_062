@@ -6,7 +6,6 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
@@ -29,7 +28,7 @@ class TestMessageBuilder {
 		
 		Message msg = MessageBuilder.build("file.txt", file, 
 				Message.ADD_BILLBOARD, "user1", "12345", "tty-44", 
-				Permission.CREATE_BILLBOARDS, users, 
+				Permission.CREATE_BILLBOARDS, users, 											// Must update
 				user, schedule, billboards, schedules, billboard);
 		assertEquals("file.txt", msg.filename());
 		assertEquals(file, msg.file());
@@ -37,7 +36,7 @@ class TestMessageBuilder {
 		assertEquals("user1", msg.username());
 		assertEquals("12345", msg.password());
 		assertEquals("tty-44", msg.token());
-		assertEquals(Permission.CREATE_BILLBOARDS, msg.permission());
+		assertEquals(Permission.CREATE_BILLBOARDS, msg.permission()); 							// Must update
 		assertEquals(users, msg.users());
 		assertEquals(user, msg.user());
 		assertEquals(schedule, msg.schedule());
@@ -87,15 +86,6 @@ class TestMessageBuilder {
 		Message msg = MessageBuilder.build(Message.ADD_BILLBOARD, "tty-44");
 		assertEquals("tty-44", msg.token());
 		assertEquals(Message.ADD_BILLBOARD, msg.command());
-	}
-
-	@Test
-	final void testMultiplePermission() {
-		Message msg = MessageBuilder.build(null, null,
-				0, null, null, null,
-				"Edit Users,Edit All Users", null, null, null, null,
-				null, null);
-		assertArrayEquals(new String[]{"Edit Users", "Edit All Users"}, msg.permission().split(","));
 	}
 
 }

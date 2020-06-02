@@ -6,6 +6,9 @@ package common;
  */
 public class Permission {
 
+	/** The Constant EDIT_USERS. */											//	Fernando update
+	public final static String ADMINISTRATOR_USERS = "Administrator";		//  Fernando update
+
 	/** The Constant CREATE_BILLBOARDS. */
 	public final static String CREATE_BILLBOARDS = "Create Billboards"; 
 	
@@ -16,6 +19,6 @@ public class Permission {
 	public final static String SCHEDULE_BILLBOARDS = "Schedule Billboards"; 
 	
 	/** The Constant EDIT_USERS. */
-	public final static String EDIT_USERS = "Edit Users"; 
+	public final static String EDIT_USERS = "Edit Users";
 
 }

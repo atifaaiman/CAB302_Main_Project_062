@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.SQLException;
 import java.text.ParseException;
@@ -85,7 +86,8 @@ public class BillboardsPanel extends JPanel {
 	private final JButton btnBackground 	= new JButton("Background Colour");
 	private final JButton btnMsgColour 		= new JButton ("Text Colour");
 	private final JButton btnInfoColour		= new JButton("Text Colour");
-	private final JButton btnAddImage		= new JButton("Add Image");
+	private final JButton btnAddImage		= new JButton("Add ");
+	private final JButton btnDeleteImage		= new JButton("Delete");
 	private final JPanel pnlInfoColour 		= new JPanel();
 	private final JPanel pnlMsgColour 		= new JPanel();
 	private final JPanel pnlBackground		= new JPanel();
@@ -94,12 +96,12 @@ public class BillboardsPanel extends JPanel {
 	private final JRadioButton jrbBase64 	= new JRadioButton("Image", true);
 	private final JRadioButton jrbURL 		= new JRadioButton("URL");
 	private final JLabel lblSelectImage		= new JLabel("");
-	private final JTextField tfPicURL 		= new JTextField(
-			35
-	);
+	private final JTextField tfPicURL 		= new JTextField(45);
 	private final JPanel pnlPicture 		= new JPanel();
 	private final JTextField tfBlbdName		= new JTextField(15);
 	private byte[] imgData;
+	private int imgWidth = 220;
+	private int imgHeight = 100;
 
 	/**
 	 * Instantiates a new billboards panel.
@@ -188,18 +190,25 @@ public class BillboardsPanel extends JPanel {
 
 		JPanel panel4 = new JPanel();
 		panel4.setLayout(new FlowLayout(FlowLayout.LEFT));
+		panel4.setBorder(BorderFactory.createDashedBorder(Color.darkGray));
+		panel4.setBorder(BorderFactory.createTitledBorder("Image:"));
 		panel4.add(jrbBase64);
+		JPanel pnlGap = new JPanel();
+		panel4.add(pnlGap);
 		panel4.add(lblSelectImage);
 		panel4.add(pnlPicture);
 		panel4.add(btnAddImage);
+		panel4.add(btnDeleteImage);
 
 		JPanel panel5 = new JPanel();
 		panel5.setLayout(new FlowLayout(FlowLayout.LEFT));
+		panel5.setBorder(BorderFactory.createDashedBorder(Color.darkGray));
+		panel5.setBorder(BorderFactory.createTitledBorder("URL:"));
 		panel5.add(jrbURL);
 		panel5.add(tfPicURL);
 
 		JPanel panel6 = new JPanel();
-		panel6.setLayout(new FlowLayout(FlowLayout.LEFT));
+		panel6.setLayout(new FlowLayout(FlowLayout.RIGHT));
 		panel6.add(btnPreview);
 
 		mainPanel.add(panel1);
@@ -213,9 +222,11 @@ public class BillboardsPanel extends JPanel {
 		//-------------------------------------------------
 
 		// Components attributes
-		pnlInfoColour.setBackground(DEFAULT_COLOR);
-		pnlMsgColour.setBackground (DEFAULT_COLOR);
-		pnlBackground.setBackground(DEFAULT_COLOR);
+		pnlGap.setBackground(DEFAULT_COLOR);
+		pnlBackground.setBackground(Color.white);
+		pnlMsgColour.setBackground (Color.gray);
+		pnlInfoColour.setBackground(Color.DARK_GRAY);
+		pnlGap.setPreferredSize	(new Dimension (110,18));
 		pnlInfoColour.setPreferredSize	(new Dimension (40,18));
 		pnlMsgColour.setPreferredSize	(new Dimension (40,18));
 		pnlBackground.setPreferredSize	(new Dimension (40,18));
@@ -225,7 +236,16 @@ public class BillboardsPanel extends JPanel {
 		//pnlPicture.add(lblSelectImage);
 		//pnlPicture.add(tfPicURL);
 		//pnlPicture.setPreferredSize(new Dimension(120, 70));
+
+		try{
+			BufferedImage bi = ImageIO.read(new File("./pictureIcon.png"));
+			Image image = bi.getScaledInstance(imgWidth, imgHeight, Image.SCALE_SMOOTH);
+			lblSelectImage.setIcon(new ImageIcon(image));
+		} catch (IOException e) {
+			System.out.println(e.getMessage());
+		}
 		tfPicURL.setVisible(false); // Because base64 by default.
+		btnDeleteImage.addActionListener(e -> setDefaultImage());
 
 		//addBillboardPanel.setLayout(new GridLayout(9, 2, 10, 10));
 		//addBillboardPanel.add(new JLabel("Billboard name:"));
@@ -250,24 +270,46 @@ public class BillboardsPanel extends JPanel {
 
 	/**
 	 * Selects image.
-	 *
 	 * @throws IOException Signals that an I/O exception has occurred.
 	 */
 	public void selectImage() throws IOException {
 		JFileChooser chooser = new JFileChooser(".");
-		FileNameExtensionFilter filter = new FileNameExtensionFilter("JPG, PNG, BMP Images", "jpg", "png", "bmp");
+		FileNameExtensionFilter filter = new FileNameExtensionFilter("JPG, PNG, BMP Images",
+				"jpg", "png", "bmp");
 		chooser.setFileFilter(filter);
 		int returnVal = chooser.showOpenDialog(null);
 		if (returnVal == JFileChooser.APPROVE_OPTION) {
 			File img = chooser.getSelectedFile();
 			imgData = Files.readAllBytes(img.toPath());
-
 			BufferedImage bi = ImageIO.read(img);
-			Image image = bi.getScaledInstance(120, 50, Image.SCALE_SMOOTH);
+			Image image = bi.getScaledInstance(imgWidth, imgHeight, Image.SCALE_SMOOTH);
 			lblSelectImage.setIcon(new ImageIcon(image));
-			lblSelectImage.setText(null);
+			btnAddImage.setText("Change");
+			//lblSelectImage.setText(null);
 		}
 	}
+
+	/**
+	 * Change for default picture image.
+	 * @throws IOException Signals that an I/O exception has occurred.
+	 */
+	public void setDefaultImage() {
+
+		//imgData = Files.readAllBytes(img.toPath());
+		//BufferedImage bi = ImageIO.read(img);
+		//Image image = bi.getScaledInstance(120, 50, Image.SCALE_SMOOTH);
+		//lblSelectImage.setIcon(new ImageIcon(image));
+		try{
+			BufferedImage bi = ImageIO.read(new File("./pictureIcon.png"));
+			Image image = bi.getScaledInstance(imgWidth, imgHeight, Image.SCALE_SMOOTH);
+			lblSelectImage.setIcon(new ImageIcon(image));
+			btnAddImage.setText("Add");
+			imgData = null;
+		} catch (IOException e) {
+			System.out.println(e.getMessage());
+		}
+	}
+
 
 	/**
 	 * Adds the info colour.
@@ -692,6 +734,13 @@ public class BillboardsPanel extends JPanel {
 	 */
 	public  JButton getBtnAddImage(){
 		return btnAddImage;
+	}
+	/**
+	 * Gets the button DeleteImage .
+	 * @return the button Show
+	 */
+	public  JButton getBtnDEleteImage(){
+		return btnDeleteImage;
 	}
 
 }

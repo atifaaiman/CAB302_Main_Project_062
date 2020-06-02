@@ -16,13 +16,11 @@ public class LoginPanel extends JPanel {
 
 	/** The Constant serialVersionUID. */
 	private static final long serialVersionUID = 1L;
-	/** The text field username. */
+
+	/** Components */
 	private JTextField tfUsername = new JTextField(20);
-	/** The password field password. */
 	private JPasswordField pfPassword = new JPasswordField(20);
-	/** The button login. */
 	private JButton btnLogin = new JButton("Login");
-	/** The button close. */
 	private JButton btnClose = new JButton("Close");
 
 	/**
@@ -52,7 +50,7 @@ public class LoginPanel extends JPanel {
 		BufferedImage image;
 		try{
 			image = ImageIO.read(new File("./login.png"));
-			System.out.println(image);
+			//System.out.println(image);
 			panel_1.add(new JLabel(new ImageIcon(image)));
 		} catch (IOException e) {
 			System.out.println(e.getMessage());

@@ -7,9 +7,7 @@ import java.sql.SQLException;
 
 import javax.swing.Timer;
 import javax.xml.parsers.ParserConfigurationException;
-
 import org.xml.sax.SAXException;
-
 import common.Billboard;
 import common.Message;
 import common.Permission;
@@ -49,6 +47,9 @@ public class Controller implements Observable {
 	/** The timer update schedules. */
 	private Timer timerUpdateSchedules;
 
+	/** The row selected by the user. */
+	private int rowSelected =0;
+
 	/**
 	 * Instantiates a new controller.
 	 *
@@ -66,8 +67,9 @@ public class Controller implements Observable {
 	 * Inits the controller.
 	 */
 	public void init() {
+		System.out.println("Init()");
 		addListeners();
-		scheduleTimerUpdate();
+		//scheduleTimerUpdate();
 	}
 
 	/**
@@ -76,22 +78,34 @@ public class Controller implements Observable {
 	private void addListeners() {
 		gui.getLoginPanel().getBtnLogin().addActionListener(e -> login());
 		gui.getLoginPanel().getBtnClose().addActionListener(e -> closeLogin() );
+		// Schedule
 		gui.getSchedulesPanel().getBtnAddSchedule().addActionListener(e -> addSchedule());
 		gui.getSchedulesPanel().getBtnLogout().addActionListener(e -> logout());
+		// User Panel
+		gui.getUsersPanel().getBtnShowUsers().addActionListener(e -> showUsers());										// Added by Fernando
+		gui.getUsersPanel().getBtnDeleteUser().addActionListener(e -> deleteUser(rowSelected));						    // Added by Fernando
+		gui.getUsersPanel().getBtnEditUser().addActionListener(e -> editUser(rowSelected));						        // Added by Fernando
 		gui.getUsersPanel().getBtnLogout().addActionListener(e -> logout());
 		gui.getUsersPanel().getBtnAddUser().addActionListener(e -> addUser());
 		gui.getUsersPanel().getTblAllUsers().addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent me) {
 				int row = gui.getUsersPanel().getTblAllUsers().rowAtPoint(me.getPoint());
-				int col = gui.getUsersPanel().getTblAllUsers().columnAtPoint(me.getPoint());
-				if (col == 3) {
+				int colNumber = gui.getUsersPanel().getTblAllUsers().columnAtPoint(me.getPoint());
+				String columnName = gui.getUsersPanel().getTblAllUsers().getColumnName(colNumber);
+				rowSelected = row;
+				System.out.println("Row number: " + rowSelected);
+				// Added bu Fernando
+				if (columnName == "Edit") {
+					//System.out.println("Edit");																		// Added by Fernando
 					editUser(row);
-				} else if (col == 4) {
+				} else if (columnName == "Delete") {
+					//System.out.println("Delete: ");																	// Added by Fernando
 					deleteUser(row);
 				}
 			}
 		});
+		// Billboard Panel
 		gui.getBillboardPanel().getTblAllBillboards().addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent me) {
@@ -136,7 +150,6 @@ public class Controller implements Observable {
 				}
 			}
 		});
-
 		inputCommandHandler.addObserver(this);
 	}
 
@@ -201,14 +214,24 @@ public class Controller implements Observable {
 	 * @param row the row the user selected
 	 */
 	private void editUser(int row) {
-		User user = gui.getUsersPanel().editUser(row);
-		if (user != null) {
-			try {
-				outputCommandHandler.editUser(user, inputCommandHandler.getSessionToken());
-			} catch (NoSuchAlgorithmException | IOException e) {
-				GUI.displayError(e.getMessage());
+		if(rowSelected != 0) {
+			User user = gui.getUsersPanel().editUser(row);
+			if (user != null) {
+				try {
+					outputCommandHandler.editUser(user, inputCommandHandler.getSessionToken());
+					rowSelected = 0;
+					// Update user list
+					try {
+						outputCommandHandler.allUsers(inputCommandHandler.getSessionToken());
+					} catch (IOException exc) {
+						GUI.displayError(exc.getMessage());
+					}
+				} catch (NoSuchAlgorithmException | IOException e) {
+					GUI.displayError(e.getMessage());
+				}
 			}
 		}
+
 	}
 
 	/**
@@ -216,13 +239,33 @@ public class Controller implements Observable {
 	 * @param row the row selected by user
 	 */
 	private void deleteUser(int row) {
-		String username = (String) gui.getUsersPanel().getTblAllUsers().getValueAt(row, 0);
-		User user = new User();
-		user.setUsername(username);
+		if(rowSelected != 0){
+			String username = (String) gui.getUsersPanel().getTblAllUsers().getValueAt(row, 0);
+			User user = new User();
+			user.setUsername(username);
+			try {
+				outputCommandHandler.deleteUser(user, inputCommandHandler.getSessionToken());
+				rowSelected = 0;
+				// Update user list
+				try {
+					outputCommandHandler.allUsers(inputCommandHandler.getSessionToken());
+				} catch (IOException exc) {
+					GUI.displayError(exc.getMessage());
+				}
+			} catch (NoSuchAlgorithmException | IOException e) {
+				GUI.displayError(e.getMessage());
+			}
+		}
+	}
+	/**
+	 * Adds the user.
+	 */
+	private void showUsers() {
 		try {
-			outputCommandHandler.deleteUser(user, inputCommandHandler.getSessionToken());
-		} catch (NoSuchAlgorithmException | IOException e) {
-			GUI.displayError(e.getMessage());
+			outputCommandHandler.allUsers(inputCommandHandler.getSessionToken());
+			gui.getUsersPanel().getBtnShowUsers().setText("Update List");
+		} catch (IOException exc) {
+			GUI.displayError(exc.getMessage());
 		}
 	}
 
@@ -234,6 +277,12 @@ public class Controller implements Observable {
 		if (user != null) {
 			try {
 				outputCommandHandler.addUser(user, inputCommandHandler.getSessionToken());
+				// Update user list
+				try {
+					outputCommandHandler.allUsers(inputCommandHandler.getSessionToken());
+				} catch (IOException exc) {
+					GUI.displayError(exc.getMessage());
+				}
 			} catch (NoSuchAlgorithmException | IOException e) {
 				GUI.displayError(e.getMessage());
 			}
@@ -326,7 +375,7 @@ public class Controller implements Observable {
 			switch (msg.permission()) {
 			case Permission.EDIT_USERS:
 				gui.showUsers();
-				timerUpdateUsers.start();
+				//timerUpdateUsers.start();      ///// Test **********************
 				break;
 			case Permission.CREATE_BILLBOARDS:
 				gui.showBillboards();
@@ -358,9 +407,9 @@ public class Controller implements Observable {
 				gui.getUsersPanel().updateTable(msg.users());
 				break;
 			case LOGOUT:
-				timerUpdateUsers.stop();
-				timerUpdateSchedules.stop();
-				timerUpdateBillboards.stop();
+				//timerUpdateUsers.stop();																	// Test
+				//timerUpdateSchedules.stop();																// Test
+				//timerUpdateBillboards.stop();																// Test
 				gui.getLoginPanel().getPfPassword().setText("");
 				gui.showLogin();
 				gui.setTitle("Login");

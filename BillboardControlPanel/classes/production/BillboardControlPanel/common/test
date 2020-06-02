@@ -1,0 +1,21 @@
+		JPanel pnlAddUser = new JPanel();
+
+		Box boxAddUser = Box.createVerticalBox();
+		JPanel panel_0 = new JPanel();
+		boxAddUser.add(panel_0);
+
+		JPanel panel_1 = new JPanel();
+		Box box1 = Box.createHorizontalBox();
+		box1.add(new JLabel("Username"));
+		box1.add(new JLabel("Password"));
+		panel_1.add(box1);
+		boxAddUser.add(panel_1);
+
+		JPanel panel_2 = new JPanel();
+		Box box2 = Box.createHorizontalBox();
+		box2.add(tfUsername);
+		box2.add(pfPassword);
+		panel_2.add(box1);
+		boxAddUser.add(panel_2);
+
+		pnlAddUser.add(boxAddUser);

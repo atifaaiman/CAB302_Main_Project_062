@@ -48,7 +48,7 @@ public class GUI extends JFrame {
 		initGUIComponents(); 				// Old Code
 
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
-		setResizable(false);
+		setResizable(true);
 		pack();
 		setLocationRelativeTo(null);
 	}

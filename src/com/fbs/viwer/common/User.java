@@ -25,7 +25,6 @@ public class User implements Serializable {
 
 	/**
 	 * Instantiates a new user.
-	 *
 	 * @param username the username
 	 * @param password the password
 	 * @param permission the permission
@@ -40,12 +39,10 @@ public class User implements Serializable {
 	 * Instantiates a new user.
 	 */
 	public User() {
-
 	}
 
 	/**
 	 * Gets the username.
-	 *
 	 * @return the username
 	 */
 	public String getUsername() {
@@ -54,7 +51,6 @@ public class User implements Serializable {
 
 	/**
 	 * Sets the username.
-	 *
 	 * @param username the new username
 	 */
 	public void setUsername(String username) {
@@ -63,7 +59,6 @@ public class User implements Serializable {
 
 	/**
 	 * Gets the password.
-	 *
 	 * @return the password
 	 */
 	public String getPassword() {
@@ -72,7 +67,6 @@ public class User implements Serializable {
 
 	/**
 	 * Sets the password.
-	 *
 	 * @param password the new password
 	 */
 	public void setPassword(String password) {
@@ -81,7 +75,6 @@ public class User implements Serializable {
 
 	/**
 	 * Gets the permission.
-	 *
 	 * @return the permission
 	 */
 	public String getPermission() {
@@ -90,7 +83,6 @@ public class User implements Serializable {
 
 	/**
 	 * Sets the permission.
-	 *
 	 * @param permission the new permission
 	 */
 	public void setPermission(String permission) {
@@ -99,7 +91,6 @@ public class User implements Serializable {
 
 	/**
 	 * Gets the serialversionuid.
-	 *
 	 * @return the serialversionuid
 	 */
 	public static long getSerialversionuid() {
@@ -108,7 +99,6 @@ public class User implements Serializable {
 
 	/**
 	 * Gets the old password.
-	 *
 	 * @return the old password
 	 */
 	public String getOldPassword() {
@@ -117,7 +107,6 @@ public class User implements Serializable {
 
 	/**
 	 * Sets the old password.
-	 *
 	 * @param oldPassword the new old password
 	 */
 	public void setOldPassword(String oldPassword) {

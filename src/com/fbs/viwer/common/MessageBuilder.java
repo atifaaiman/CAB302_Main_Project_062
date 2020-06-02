@@ -113,7 +113,8 @@ public class MessageBuilder {
 	 * @return the message
 	 */
 	public static Message build(String filename, byte[] file, int command) {
-		return build(filename, file, command, null, null, null, null, null, null, null, null, null, null);
+		return build(filename, file, command, null, null, null, null, null,
+				null, null, null, null, null);
 	}
 	
 	/**
@@ -123,7 +124,8 @@ public class MessageBuilder {
 	 * @return the message
 	 */
 	public static Message build(int command) {
-		return build(null, null, command, null, null, null, null, null, null, null, null, null, null);
+		return build(null, null, command, null, null, null, null, null,
+				null, null, null, null, null);
 	}
 	
 	/**
@@ -135,7 +137,8 @@ public class MessageBuilder {
 	 * @return the message
 	 */
 	public static Message build(int command, String username, String password) {
-		return build(null, null, command, username, password, null, null, null, null, null, null, null, null);
+		return build(null, null, command, username, password, null, null, null,
+				null, null, null, null, null);
 	}
 	
 	/**
@@ -146,6 +149,7 @@ public class MessageBuilder {
 	 * @return the message
 	 */
 	public static Message build(int command, String token) {
-		return build(null, null, command, null, null, token, null, null, null, null, null, null, null);
+		return build(null, null, command, null, null, token, null, null,
+				null, null, null, null, null);
 	}
 }

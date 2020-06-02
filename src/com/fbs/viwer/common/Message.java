@@ -119,42 +119,36 @@ public interface Message extends Serializable {
 
 	/**
 	 * Users objects once requested by the user with {@link Permission#EDIT_USERS}
-	 *
 	 * @return the list of {@link User} objects
 	 */
 	public List<User> users();
 
 	/**
 	 * User to add/edit/delete {@link User}.
-	 *
 	 * @return the user
 	 */
 	public User user();
 
 	/**
 	 * Schedule to add new {@link Schedule}
-	 *
 	 * @return the schedule
 	 */
 	public Schedule schedule();
 
 	/**
 	 * Billboards list to update table on GUI.
-	 *
 	 * @return the list
 	 */
 	public List<Billboard> billboards();
 
 	/**
 	 * Schedules list to update table on GUI.
-	 *
 	 * @return the list
 	 */
 	public List<Schedule> schedules();
 
 	/**
 	 * Billboard to add/edit/delete billboard.
-	 *
 	 * @return the billboard
 	 */
 	public Billboard billboard();

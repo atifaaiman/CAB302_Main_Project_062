@@ -42,8 +42,10 @@ public class ServerListener implements Runnable {
 
 		try (ObjectInputStream ois = new ObjectInputStream(serverSocket.getInputStream())) {
 			Message msg = (Message) ois.readObject();
-			
+
+			// Update the billboard from the server
 			processCommand(msg);
+
 		} catch (IOException e) {
 
 		} catch (ClassNotFoundException e) {
@@ -64,7 +66,6 @@ public class ServerListener implements Runnable {
 
 	/**
 	 * Processes command.
-	 *
 	 * @param msg the message
 	 */
 	public void processCommand(Message msg) {

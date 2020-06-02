@@ -46,6 +46,10 @@ public class ServerListener implements Runnable {
 			while (true) {
 				Message msg = (Message) ois.readObject();
 				inputCommandHandler.processCommand(msg);
+
+				// DEBUG FERNANDO ***************************************************************************************
+				System.out.println(msg.command()); // Added by Fernando
+				// DEBUG FERNANDO ***************************************************************************************
 			}
 
 			// Case when server disconnects.

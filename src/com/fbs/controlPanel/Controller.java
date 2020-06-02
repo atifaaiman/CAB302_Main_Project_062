@@ -1,12 +1,3 @@
-import static common.Message.BILLBOARDS;
-import static common.Message.FAILED_USERNAME_EXISTS;
-import static common.Message.INVALID_CREDENTIALS;
-import static common.Message.LOGIN;
-import static common.Message.LOGOUT;
-import static common.Message.NO_PERMISSION;
-import static common.Message.SCHEDULES;
-import static common.Message.USERS;
-
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.IOException;
@@ -23,6 +14,8 @@ import common.Message;
 import common.Permission;
 import common.Schedule;
 import common.User;
+
+import static common.Message.*;
 
 /**
  * The Class Controller according to MVC pattern. Accepts all user actions, such
@@ -131,14 +124,13 @@ public class Controller implements Observable {
 			gui.getBillboardPanel().getLblSelectImage().setVisible(false);
 			gui.getBillboardPanel().getTfPicURL().setVisible(true);
 		});
-		gui.getBillboardPanel().getPnlPicture().addMouseListener(new MouseAdapter() {
-			@Override
-			public void mousePressed(MouseEvent me) {
-				try {
-					gui.getBillboardPanel().selectImage();
-				} catch (IOException e) {
-					GUI.displayError(e.getMessage());
-				}
+		//************** Naif edit *****************************************
+		//I have changed the label for get Image to Jbutton
+		gui.getBillboardPanel().getLblSelectImage().addActionListener(e -> {
+			try {
+				gui.getBillboardPanel().selectImage();
+			} catch (IOException exc) {
+				GUI.displayError(exc.getMessage());
 			}
 		});
 
@@ -147,7 +139,6 @@ public class Controller implements Observable {
 
 	/**
 	 * Previews the billboard view.
-	 *
 	 * @param row the row
 	 */
 	private void preview(int row) {
@@ -160,7 +151,6 @@ public class Controller implements Observable {
 
 	/**
 	 * Edits the billboard by selected row (cell)
-	 *
 	 * @param row the row the user selected in table
 	 */
 	private void editBillboard(int row) {
@@ -177,7 +167,6 @@ public class Controller implements Observable {
 
 	/**
 	 * Deletes billboard by selected row (cell)
-	 *
 	 * @param row the row the user selected in table
 	 */
 	private void deleteBillboard(int row) {
@@ -206,7 +195,6 @@ public class Controller implements Observable {
 
 	/**
 	 * Edits the user by selected row (cell)
-	 *
 	 * @param row the row the user selected
 	 */
 	private void editUser(int row) {
@@ -222,7 +210,6 @@ public class Controller implements Observable {
 
 	/**
 	 * Deletes user by selected row
-	 *
 	 * @param row the row selected by user
 	 */
 	private void deleteUser(int row) {
@@ -316,7 +303,6 @@ public class Controller implements Observable {
 
 	/**
 	 * Updates the view according to the input {@link Message}.
-	 *
 	 * @param msg the input {@link Message}
 	 */
 	@Override
@@ -324,6 +310,7 @@ public class Controller implements Observable {
 
 		switch (msg.command()) {
 		case LOGIN:
+
 			gui.setTitle(msg.permission());
 			switch (msg.permission()) {
 			case Permission.EDIT_USERS:
@@ -345,33 +332,38 @@ public class Controller implements Observable {
 				break;
 			}
 			break;
-		case INVALID_CREDENTIALS:
-			GUI.displayError("Invalid credentials!");
-			break;
-		case BILLBOARDS:
-			gui.getBillboardPanel().updateTable(msg.billboards());
-			gui.getSchedulesPanel().updateBillboards(msg.billboards());
-			break;
-		case SCHEDULES:
-			gui.getSchedulesPanel().updateTable(msg.schedules());
-			break;
-		case USERS:
-			gui.getUsersPanel().updateTable(msg.users());
-			break;
-		case LOGOUT:
-			timerUpdateUsers.stop();
-			timerUpdateSchedules.stop();
-			timerUpdateBillboards.stop();
-			gui.getLoginPanel().getPfPassword().setText("");
-			gui.showLogin();
-			gui.setTitle("Login");
-			break;
-		case FAILED_USERNAME_EXISTS:
-			GUI.displayError("User not added: username exists.");
-			break;
-		case NO_PERMISSION:
-			GUI.displayError("No permission!");
-			break;
+
+			case INVALID_CREDENTIALS:
+				GUI.displayError("Invalid credentials!");
+				break;
+			case BILLBOARDS:
+				gui.getBillboardPanel().updateTable(msg.billboards());
+				gui.getSchedulesPanel().updateBillboards(msg.billboards());
+				break;
+			case SCHEDULES:
+				gui.getSchedulesPanel().updateTable(msg.schedules());
+				break;
+			case USERS:
+				gui.getUsersPanel().updateTable(msg.users());
+				break;
+			case LOGOUT:
+				timerUpdateUsers.stop();
+				timerUpdateSchedules.stop();
+				timerUpdateBillboards.stop();
+				gui.getLoginPanel().getPfPassword().setText("");
+				gui.showLogin();
+				gui.setTitle("Login");
+				break;
+			case FAILED_USERNAME_EXISTS:
+				GUI.displayError("User not added. Username already exists.");
+				break;
+			case NO_PERMISSION:
+				GUI.displayError("No permission!");
+				break;
+			case FAILED_BILLBOARD_EXISTS:																	// Code added by Fernando
+				GUI.displayError("Billboard not added. Billboard name already exist");						// Code added by Fernando
+				break;																						// Code added by Fernando
+
 		}
 	}
 

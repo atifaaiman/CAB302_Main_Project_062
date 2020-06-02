@@ -6,6 +6,7 @@ import static common.Message.LOGOUT;
 import static common.Message.NO_PERMISSION;
 import static common.Message.SCHEDULES;
 import static common.Message.USERS;
+import static common.Message.FAILED_BILLBOARD_EXISTS;
 
 import common.Message;
 
@@ -44,19 +45,21 @@ public class InputCommandHandler {
 	public void processCommand(Message msg) {
 
 		switch (msg.command()) {
-		case LOGIN:
-			login(msg);
-			break;
-		case LOGOUT:
-			logout(msg);
-			break;
-		case INVALID_CREDENTIALS:
-		case USERS:
-		case NO_PERMISSION:
-		case FAILED_USERNAME_EXISTS:
-		case BILLBOARDS:
-		case SCHEDULES:
-			observer.update(msg);
+
+			case LOGIN:
+				login(msg);
+				break;
+			case LOGOUT:
+				logout(msg);
+				break;
+			case INVALID_CREDENTIALS:
+			case USERS:
+			case NO_PERMISSION:
+			case FAILED_USERNAME_EXISTS:
+			case FAILED_BILLBOARD_EXISTS:  				// Added by fernando
+			case BILLBOARDS:
+			case SCHEDULES:
+				observer.update(msg);
 		}
 	}
 	

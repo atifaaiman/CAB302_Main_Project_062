@@ -1,10 +1,5 @@
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.GridBagLayout;
-import java.awt.Image;
+import java.awt.*;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -24,6 +19,7 @@ import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.w3c.dom.ls.LSOutput;
 import org.xml.sax.SAXException;
 
 /**
@@ -38,7 +34,11 @@ public class GUIPreview extends JPanel {
 	 * Constant to store number of milliseconds between server connections.
 	 */
 
-	public final static Dimension SCREEN_SIZE = new Dimension(400, 400);
+	//public final static Dimension SCREEN_SIZE = new Dimension(400, 400);          // Old
+	static Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+	private static int screenHeight = screenSize.height;
+	private static int  screenWidth = screenSize.width;
+	public final static Dimension SCREEN_SIZE = new Dimension(screenWidth-200, screenHeight-150 );
 
 	/** The Constant WIDTH_GAP. */
 	public final static double WIDTH_GAP = 0.125;

@@ -1,9 +1,20 @@
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.FlowLayout;
-import java.awt.GridLayout;
-import java.awt.Image;
+import common.Billboard;
+import org.w3c.dom.*;
+import org.xml.sax.SAXException;
+
+import javax.imageio.ImageIO;
+import javax.sql.rowset.serial.SerialException;
+import javax.swing.*;
+import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.swing.table.DefaultTableModel;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -16,42 +27,6 @@ import java.sql.SQLException;
 import java.util.Base64;
 import java.util.List;
 
-import javax.imageio.ImageIO;
-import javax.sql.rowset.serial.SerialException;
-import javax.swing.BorderFactory;
-import javax.swing.ButtonGroup;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JColorChooser;
-import javax.swing.JFileChooser;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JRadioButton;
-import javax.swing.JScrollPane;
-import javax.swing.JTable;
-import javax.swing.JTextField;
-import javax.swing.SwingConstants;
-import javax.swing.filechooser.FileNameExtensionFilter;
-import javax.swing.table.DefaultTableModel;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
-
-import org.w3c.dom.Attr;
-import org.w3c.dom.DOMException;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
-
-import common.Billboard;
-
 /**
  * The Class BillboardsPanel encapsulates view for Billboard panel where users
  * with permissions {@link common.Permission#EDIT_ALL_BILLBOARDS} and
@@ -61,10 +36,10 @@ import common.Billboard;
 public class BillboardsPanel extends JPanel {
 
 	/** The logout button. */
-	private JButton btnLogout = new JButton("Logout");
+	private final JButton btnLogout = new JButton("Logout");
 
 	/** The button add billboard. */
-	private JButton btnAddBillboard = new JButton("Add Billboard");
+	private final JButton btnAddBillboard = new JButton("Add Billboard");
 
 	/**
 	 * The default color. It's used to check whether the user selects 'colour'
@@ -73,7 +48,7 @@ public class BillboardsPanel extends JPanel {
 	private final Color DEFAULT_COLOR = getBackground();
 
 	/** The table model all billboards. */
-	private DefaultTableModel tblMdlAllBillboards = new DefaultTableModel(
+	private final DefaultTableModel tblMdlAllBillboards = new DefaultTableModel(
 			new String[] { "Name", "Author", "Preview", "Edit", "Delete" }, 0) {
 
 		private static final long serialVersionUID = 1L;
@@ -88,7 +63,7 @@ public class BillboardsPanel extends JPanel {
 	};
 
 	/** The table all billboards. Contains all billboards. */
-	private JTable tblAllBillboards = new JTable(tblMdlAllBillboards);
+	private final JTable tblAllBillboards = new JTable(tblMdlAllBillboards);
 
 	/** The Constant serialVersionUID. */
 	private static final long serialVersionUID = 1L;
@@ -97,52 +72,54 @@ public class BillboardsPanel extends JPanel {
 	private List<Billboard> billboards;
 
 	/** The add billboard panel. */
-	private JPanel addBillboardPanel = new JPanel();
+	private final JPanel addBillboardPanel = new JPanel();
 
 	/** The button preview. */
-	private JButton btnPreview = new JButton("Preview");
+	private final JButton btnPreview = new JButton("Preview");
 
 	/** The button background. */
-	private JButton btnBackground = new JButton("Select background");
+	private final JButton btnBackground = new JButton("Select background");
 
 	/** The button message colour. */
-	private JButton btnMsgColour = new JButton("Select message colour");
+	private final JButton btnMsgColour = new JButton("Select message colour");
 
 	/** The button info colour. */
-	private JButton btnInfoColour = new JButton("Select information colour");
+	private final JButton btnInfoColour = new JButton("Select information colour");
 
 	/** The panel info colour. */
-	private JPanel pnlInfoColour = new JPanel();
+	private final JPanel pnlInfoColour = new JPanel();
 
 	/** The panel message colour. */
-	private JPanel pnlMsgColour = new JPanel();
+	private final JPanel pnlMsgColour = new JPanel();
 
 	/** The panel background. */
-	private JPanel pnlBackground = new JPanel();
+	private final JPanel pnlBackground = new JPanel();
 
 	/** The text field message text. */
-	private JTextField tfMsgText = new JTextField();
+	private final JTextField tfMsgText = new JTextField();
 
 	/** The text field info text. */
-	private JTextField tfInfoText = new JTextField();
+	private final JTextField tfInfoText = new JTextField();
 
 	/** The radio button base 64. */
-	private JRadioButton jrbBase64 = new JRadioButton("Base 64", true);
-
+	//**********Naif edited******************************************************
+	private final JRadioButton jrbBase64 = new JRadioButton("Image", true);
+															// Base 64
 	/** The radio button URL. */
-	private JRadioButton jrbURL = new JRadioButton("URL");
+	private final JRadioButton jrbURL = new JRadioButton("URL");
 
 	/** The label select image. */
-	private JLabel lblSelectImage = new JLabel("Select picture...");
-
+	private final JButton lblSelectImage = new JButton("Browse");
+													//Select picture...
+	//***********************************************************************************
 	/** The text field picture URL. */
-	private JTextField tfPicURL = new JTextField(15);
+	private final JTextField tfPicURL = new JTextField(15);
 
 	/** The panel picture. */
-	private JPanel pnlPicture = new JPanel();
+	private final JPanel pnlPicture = new JPanel();
 
 	/** The text field billboard name. */
-	private JTextField tfBlbdName = new JTextField();
+	private final JTextField tfBlbdName = new JTextField();
 
 	/**
 	 * The image data (when the user selects image using JFileChooser).
@@ -187,7 +164,10 @@ public class BillboardsPanel extends JPanel {
 		pnlPicture.add(tfPicURL);
 		pnlPicture.setPreferredSize(new Dimension(100, 40));
 		tfPicURL.setVisible(false); // Because base64 by default.
-
+		//*********Naif added******************
+		lblSelectImage.setBorderPainted(true);
+		lblSelectImage.setContentAreaFilled(true);
+		//********************************************
 		addBillboardPanel.setLayout(new GridLayout(9, 2, 10, 10));
 		addBillboardPanel.add(new JLabel("Enter Billboard name:"));
 		addBillboardPanel.add(tfBlbdName);
@@ -285,7 +265,6 @@ public class BillboardsPanel extends JPanel {
 	/**
 	 * Previews the billboard. First, it creates XML document using the data entered
 	 * by the user. Once created, it stores the document to temp/billboard.xml file.
-	 *
 	 * @throws Exception the exception
 	 */
 	public void preview() throws Exception {
@@ -576,10 +555,11 @@ public class BillboardsPanel extends JPanel {
 	 *
 	 * @return the label select image
 	 */
-	public JLabel getLblSelectImage() {
+	//*************** Naif edited ******************************
+	public JButton getLblSelectImage() {
 		return lblSelectImage;
 	}
-
+//***************************************************************
 	/**
 	 * Gets the text field picture URL.
 	 *

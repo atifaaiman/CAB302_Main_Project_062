@@ -135,11 +135,20 @@ public class UsersPanel extends JPanel {
 			String username = tfUsername.getText().trim();
 			String password = new String(pfPassword.getPassword()).trim();
 
+			// New code Sasitheran
+			Boolean administrator = true;
+			Boolean create_billboards = true;
+			Boolean edit_all_billboards = true;
+			Boolean schedule_billboards = true;
+			Boolean edit_users = true;
+
 			if (username.isEmpty() || password.isEmpty()) {
 				GUI.displayError("Username and Password must contain at least 1 symbol!");
 			} else {
 				String permission = (String) jcbPermissions.getSelectedItem();
-				user = new User(username, password, permission);
+				//user = new User(username, password, permission); // Old Code
+				user = new User(username, password, permission, administrator, create_billboards,
+						edit_all_billboards, schedule_billboards, edit_users); // New Code
 			}
 		}
 
@@ -166,6 +175,13 @@ public class UsersPanel extends JPanel {
 		String permission = (String) tblAllUsers.getValueAt(row, 2);
 		String password = (String) tblAllUsers.getValueAt(row, 1);
 
+		// New code Sasitheran
+		Boolean administrator = true;
+		Boolean create_billboards = true;
+		Boolean edit_all_billboards = true;
+		Boolean schedule_billboards = true;
+		Boolean edit_users = true;
+
 		pfPassword.setText(password);
 		tfUsername.setText(username);
 		tfUsername.setEditable(false);
@@ -179,7 +195,8 @@ public class UsersPanel extends JPanel {
 			if (pswrd.isEmpty()) {
 				GUI.displayError("Password cannot be empty!");
 			} else {
-				user = new User(username, pswrd, (String) jcbPermissions.getSelectedItem());
+				user = new User(username, pswrd, (String) jcbPermissions.getSelectedItem(),administrator, create_billboards,
+						edit_all_billboards, schedule_billboards, edit_users); // New Code
 				user.setOldPassword(password);
 			}
 		}

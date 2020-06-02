@@ -1,0 +1,1 @@
+typeSearchIndex = [{"l":"All Classes","url":"allclasses-index.html"},{"p":"common","l":"Billboard"},{"p":"<Unnamed>","l":"Client"},{"p":"<Unnamed>","l":"GUI"},{"p":"common","l":"Message"},{"p":"common","l":"MessageBuilder"},{"p":"common","l":"Permission"},{"p":"common","l":"Schedule"},{"p":"<Unnamed>","l":"ServerListener"},{"p":"common","l":"User"}]

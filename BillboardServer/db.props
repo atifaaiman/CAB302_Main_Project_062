@@ -1,0 +1,4 @@
+jdbc.url=jdbc:mariadb://192.168.8.12:3306/
+jdbc.schema=cab302
+jdbc.username=root
+jdbc.password=cometa

@@ -54,8 +54,8 @@ public class LoginClass extends JPanel{
 	private void initialize() {
 		//Login Frame
 		frameLoginPage = new JFrame();
-		frameLoginPage.setIconImage(Toolkit.getDefaultToolkit().getImage("C:\\Users\\sasit\\Desktop\\Billboard Control Panel\\src\\Login.jpg"));
-		 ImageIcon image = new ImageIcon("C:\\Users\\sasit\\Desktop\\Billboard Control Panel\\src\\Login.jpg");
+		frameLoginPage.setIconImage(Toolkit.getDefaultToolkit().getImage("C:\\Users\\sasit\\Desktop\\Updated Billboard Control Panel\\src\\Login.jpg"));
+		 ImageIcon image = new ImageIcon("C:\\Users\\sasit\\Desktop\\Updated Billboard Control Panel\\src\\Login.jpg");
 		JLabel background = new JLabel(image);
 		frameLoginPage.setContentPane(background);
 		
@@ -143,9 +143,9 @@ public class LoginClass extends JPanel{
 				
 				else{
 					
-					//You will get here if he will enter user Name Password
-					//Here you will check that the credentials are valid? Compare from DB
-							//If valid then check permissions and Hide tabs from Control Panel which are not permitted 
+					//The user will arrive here if he enters Username and Password. 
+					//Validity check for the credentials will be performed in this space against the Database. 
+							//If credentials are valid, then check the user's permissions and Hide tabs from the Control panel which are not permitted.  
 				frameLoginPage.setVisible(false);
 				ControlPanel cp = new ControlPanel(); //Control Panel Navigation
 			   

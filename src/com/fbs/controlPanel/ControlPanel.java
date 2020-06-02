@@ -11,12 +11,12 @@ import java.awt.Color;
 import java.util.Calendar;
 
 public class ControlPanel extends JFrame {
-	JFrame f; //This is our Frame where we will do all the stuff
+	JFrame f; //This is our Frame where we will perform all the customisation controls
 	
 	
 	
 	
-	//Declaring all panels we will use in Out Control Panel
+	//Declaring all the panels we will use in the Control Panel Application
 	JPanel UsersPanel, CreateBillBoard, ScheduleBillBoardPanel, ListBillBoard,     Scedule_Form, Update_BillBoard,
 			AddUserTab, ViewBillBoard, UpdateExistingUser, UpdateForm, ChooseFromFile;
 	
@@ -28,9 +28,11 @@ public class ControlPanel extends JFrame {
 	
 	
 	
-	//Declaring all the Controls we need in Control Panel
+	//Declaring all the Controls that we need in Control Panel
 	private JTextField UserName_Txt_NewUSer;
+	private JTextField UserName_field;
 	private JTextField Password_Details_NUSer;
+	private JTextField Password_field;
 	private JList list;
 	private JList list_1;
 	private JLabel lblNewLabel_1;
@@ -81,18 +83,40 @@ public class ControlPanel extends JFrame {
 	private JTextField Scheduletill_txt;
 	private JButton btnNewButton_2;
 	private JButton btn_Back6;
+	private JLabel lblFirstname;
+	private JLabel FName;
+	private JTextField textField;
+	private JTextField FNameField;
+	private JTextField textField_1;
+	private JTextField Lname_field;
+	private JTextField textField_3;
+	private JTextField Birth_Txt;
+	private JTextField textField_4;
+	private JTextField Mobile_NoTxt;
+	private JTextField textField_5;
+	private JTextField Email_txt;
+	private JLabel LName;
+	private JLabel Password;
+	private JLabel BithDate;
+	private JLabel MobileNO;
+	private JLabel Permissions;
+	private JCheckBox EditBoard_Chk;
+	private JCheckBox Scedule_chk;
+	private JCheckBox EditUser_txt;
+	private JLabel Email;
+	private JButton Submit_btn;
 
 	
 	
 	
 	
-	//Constructor which is calling a function  named Initiallize
+	//Constructor which is calling the function named Initialize
 	ControlPanel() {
 		initialize();
 	}
 	
 	
-//Initallize function will in itiallize initiall properties for controlls
+//The Initialize function will Initialize Initial properties for Controls
 	
 	private void initialize() {
 		//Creating Frame variable name f
@@ -102,28 +126,32 @@ public class ControlPanel extends JFrame {
 
 		
 		
-		//Creating Tabbed Pane for Tabs variable name tp
+		//Creating a tab-based window for Tabs with a variable name tp
 		JTabbedPane tp = new JTabbedPane();
 		tp.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
 		tp.setBounds(0, 11, 700, 380);
 		
-		//Urer Panel declaration and adding it to out tabbed pan
+		//Users Panel declaration and adding it too the tab-based window pane
 		UsersPanel = new JPanel();
+		UsersPanel.setBackground(Color.PINK);
+		UsersPanel.setForeground(Color.PINK);
 		UsersPanel.setSize(700, 380);
 		UsersPanel.setBounds(0, 0, 700, 380);
 		tp.add("Users", UsersPanel);
+		tp.setBackgroundAt(0, Color.PINK);
 		UsersPanel.setLayout(null);
 		//Declaring this Chooose file variable for choosing files from Computer to upload
 		ChooseFromFile = new JPanel();
 		
 		
-//Button on USer Panel  For creating new user
+//Button for Users Panel, Used for creating a new user
 		JButton Create_User_UsersPanel = new JButton("CREATE USER");
-		//Action on Create USer
+		//Action on Create User
 		Create_User_UsersPanel.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				//Going to add user tab
+				//Going to the add user tab
 				tp.setComponentAt(0, AddUserTab);
+				;
 				tp.repaint();
 
 			}
@@ -134,7 +162,7 @@ public class ControlPanel extends JFrame {
 		
 		
 		
-//Button for Updating Existing user 
+//Button for Updating the Existing user 
 		JButton UpdateUser_UsersPanel = new JButton("UPDATE EXISTING USER DETAILS");
 		UpdateUser_UsersPanel.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -150,7 +178,10 @@ public class ControlPanel extends JFrame {
 		
 		//Scedule Bill Board Panel Setting 
 		ScheduleBillBoardPanel = new JPanel();
+		ScheduleBillBoardPanel.setBackground(Color.PINK);
+		//ScheduleBillBoardPanel.setForeground(Color.MAGENTA);
 		tp.add("ScheduleBillBoard", ScheduleBillBoardPanel);
+		//ftp.setBackgroundAt(1, Color.MAGENTA);
 		ScheduleBillBoardPanel.setLayout(null);
 
 		//Title lable on this Panel
@@ -165,7 +196,7 @@ public class ControlPanel extends JFrame {
 		ScheduleNow_btn.setBounds(248, 298, 135, 23);
 		ScheduleNow_btn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-//If user want to scedule a BillBoard then e will cick on this and he will be redirected to Scedule form
+//If user want to schedule a BillBoard then e will click on this and he will be redirected to Scedule form
 				tp.setComponentAt(1, Scedule_Form);
 				tp.repaint();
 
@@ -200,7 +231,10 @@ public class ControlPanel extends JFrame {
 
 		BillBoard_List.setModel(dfff);
 		CreateBillBoard = new JPanel();
+		CreateBillBoard.setBackground(Color.PINK);
+		CreateBillBoard.setForeground(Color.RED);
 		tp.add("Create BillBoards", CreateBillBoard);
+		tp.setBackgroundAt(2, Color.RED);
 		CreateBillBoard.setLayout(null);
 // if a user want to upload an XML so he will click on this button
 		UploadXML_Btn = new JButton("Add from A XML file ?");
@@ -213,7 +247,7 @@ public class ControlPanel extends JFrame {
 		});
 		
 		
-		UploadXML_Btn.setBounds(163, 11, 185, 37);
+		UploadXML_Btn.setBounds(85, 11, 185, 37);
 		CreateBillBoard.add(UploadXML_Btn);
 
 		
@@ -349,6 +383,9 @@ public class ControlPanel extends JFrame {
 				// Here you will submit the bilboard to databse
 				
 				
+				JOptionPane.showMessageDialog(f, "The Bill Board has been saved ");
+				
+				
 			}
 		});
 		Submit_btn_CreateBillBOard.setBounds(230, 305, 89, 23);
@@ -373,133 +410,214 @@ public class ControlPanel extends JFrame {
 		ChooseImage_Btn_CreateBillBoard.setBounds(228, 206, 158, 23);
 		CreateBillBoard.add(ChooseImage_Btn_CreateBillBoard);
 		
+		JButton UploadXML_Btn_1 = new JButton("Upload Png");
+		UploadXML_Btn_1.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				
+				tp.setComponentAt(2, ChooseFromFile);
+				tp.repaint();
+				
+			}
+		});
+		UploadXML_Btn_1.setBounds(305, 11, 185, 37);
+		CreateBillBoard.add(UploadXML_Btn_1);
+		
 		
 		
 		//
-		AddUserTab = new JPanel();
+		
 		UpdateForm = new JPanel();
-
+		
 		UpdateForm.setLayout(null);
+		UpdateForm.setBackground(Color.PINK);
+		
+		//Here use will create new BillBoard
+				JCheckBox chckbxNewCheckBox = new JCheckBox("Create Billboards");
+				chckbxNewCheckBox.setBounds(185, 185, 107, 23);
+				UpdateForm.add(chckbxNewCheckBox);
 
-		Back_btn = new JButton(" ");
-		Back_btn.setIcon(
-				new ImageIcon("C:\\Users\\sasit\\Desktop\\Billboard Control Panel\\src\\abc.png"));
-		Back_btn.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
+				JLabel lblNewLabel = new JLabel("User Name");
+				lblNewLabel.setBounds(102, 75, 69, 23);
+				UpdateForm.add(lblNewLabel);
+
+				UserName_Txt_NewUSer = new JTextField();
+				UserName_Txt_NewUSer.setBounds(185, 76, 99, 20);
+				UpdateForm.add(UserName_Txt_NewUSer);
+				UserName_Txt_NewUSer.setColumns(10);
+
+				JLabel lblPassword = new JLabel("Password");
+				lblPassword.setBounds(102, 127, 64, 23);
+				UpdateForm.add(lblPassword);
+
+				Password_Details_NUSer = new JTextField();
+				Password_Details_NUSer.setColumns(10);
+				Password_Details_NUSer.setBounds(185, 128, 99, 20);
+				UpdateForm.add(Password_Details_NUSer);
+
+				JLabel lblPermissions = new JLabel("Permissions");
+				lblPermissions.setBounds(102, 185, 77, 23);
+				UpdateForm.add(lblPermissions);
+
+				JCheckBox chckbxEditUsers = new JCheckBox("Edit Users");
+				chckbxEditUsers.setBounds(573, 185, 116, 23);
+				UpdateForm.add(chckbxEditUsers);
+
+				JCheckBox chckbxEditAllBillboards = new JCheckBox("Edit All Billboards");
+				chckbxEditAllBillboards.setBounds(305, 185, 123, 23);
+				UpdateForm.add(chckbxEditAllBillboards);
+
+				JCheckBox chckbxNewCheckBox_2_1 = new JCheckBox("Schedule Billboards");
+				chckbxNewCheckBox_2_1.setBounds(430, 185, 141, 23);
+				UpdateForm.add(chckbxNewCheckBox_2_1);
+		//Here is the Submit button though which you need to put data into database
+				JButton Submit = new JButton("Submit");
+				Submit.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent e) {
+						
+						JOptionPane.showMessageDialog(f, "User Updated ");
+					}
+				});
+				Submit.setBounds(304, 280, 89, 23);
+				UpdateForm.add(Submit);
+
+				
 				//back
-				tp.setComponentAt(0, UsersPanel);
-				tp.repaint();
+				
+				JButton Back = new JButton(" ");
+				Back.setIcon(
+						new ImageIcon("C:\\Users\\sasit\\Desktop\\Updated Billboard Control Panel\\src\\abc.png"));
+				Back.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent e) {
 
-			}
-		});
+						tp.setComponentAt(0, UsersPanel);
+						tp.repaint();
+
+					}
+				});
+				Back.setBounds(0, 11, 53, 23);
+				UpdateForm.add(Back);
+				//Label 
+				JLabel lblAddDetailsOf = new JLabel("ADD DETAILS TO BE UPDATED");
+				lblAddDetailsOf.setFont(new Font("Tahoma", Font.BOLD, 18));
+				lblAddDetailsOf.setSize(new Dimension(50, 50));
+				lblAddDetailsOf.setBounds(203, 0, 327, 48);
+				UpdateForm.add(lblAddDetailsOf);
+				
+				lblFirstname = new JLabel("FirstName");
+				lblFirstname.setBounds(294, 75, 69, 23);
+				UpdateForm.add(lblFirstname);
+				
+				textField = new JTextField();
+				textField.setColumns(10);
+				textField.setBounds(355, 76, 99, 20);
+				UpdateForm.add(textField);
+				
+				JLabel lblLastname = new JLabel("LastName");
+				lblLastname.setBounds(461, 75, 69, 23);
+				UpdateForm.add(lblLastname);
+				
+				textField_1 = new JTextField();
+				textField_1.setColumns(10);
+				textField_1.setBounds(540, 76, 99, 20);
+				UpdateForm.add(textField_1);
+				
+				JLabel lblNewLabel_13_1 = new JLabel("Birth Date");
+				lblNewLabel_13_1.setBounds(294, 127, 69, 23);
+				UpdateForm.add(lblNewLabel_13_1);
+				
+				textField_3 = new JTextField();
+				textField_3.setColumns(10);
+				textField_3.setBounds(355, 128, 99, 20);
+				UpdateForm.add(textField_3);
+				
+				JLabel lblNewLabel_13_1_1 = new JLabel("mobile #");
+				lblNewLabel_13_1_1.setBounds(461, 127, 69, 23);
+				UpdateForm.add(lblNewLabel_13_1_1);
+				
+				textField_4 = new JTextField();
+				textField_4.setColumns(10);
+				textField_4.setBounds(540, 128, 99, 20);
+				UpdateForm.add(textField_4);
+				
+				JLabel lblEmailAdress = new JLabel("Email Adress");
+				lblEmailAdress.setBounds(102, 241, 69, 23);
+				UpdateForm.add(lblEmailAdress);
+				
+				textField_5 = new JTextField();
+				textField_5.setColumns(10);
+				textField_5.setBounds(185, 242, 351, 20);
+				UpdateForm.add(textField_5);
+
 		
 		
+		AddUserTab = new JPanel();
 		
-		//Here  User data Will be Updated you will get selected User afrom db and then populate its data in these fields
-		Back_btn.setAutoscrolls(true);
-		Back_btn.setBounds(10, 11, 65, 23);
-		UpdateForm.add(Back_btn);
-
-		lblNewLabel_2 = new JLabel("Name");
-		lblNewLabel_2.setBounds(116, 78, 46, 14);
-		UpdateForm.add(lblNewLabel_2);
-
-		lblNewLabel_3 = new JLabel("Password");
-		lblNewLabel_3.setBounds(116, 134, 58, 14);
-		UpdateForm.add(lblNewLabel_3);
-
-		lblNewLabel_4 = new JLabel("Permissions");
-		lblNewLabel_4.setBounds(116, 196, 89, 14);
-		UpdateForm.add(lblNewLabel_4);
-
-		textField_2 = new JTextField();
-		textField_2.setBounds(209, 75, 215, 20);
-		UpdateForm.add(textField_2);
-		textField_2.setColumns(10);
-
-		Pasword_txt = new JTextField();
-		Pasword_txt.setText("123456");
-		Pasword_txt.setColumns(10);
-		Pasword_txt.setBounds(209, 131, 215, 20);
-		UpdateForm.add(Pasword_txt);
-
-		chckbxNewCheckBox_1 = new JCheckBox("Create BillBorads");
-		chckbxNewCheckBox_1.setSelected(true);
-		chckbxNewCheckBox_1.setBounds(206, 192, 97, 23);
-		UpdateForm.add(chckbxNewCheckBox_1);
-
-		chckbxNewCheckBox_2 = new JCheckBox("Edit BillBoards");
-		chckbxNewCheckBox_2.setBounds(315, 192, 97, 23);
-		UpdateForm.add(chckbxNewCheckBox_2);
-
-		chckbxNewCheckBox_3 = new JCheckBox("Scedule BillBoards");
-		chckbxNewCheckBox_3.setSelected(true);
-		chckbxNewCheckBox_3.setBounds(421, 192, 97, 23);
-		UpdateForm.add(chckbxNewCheckBox_3);
-
-		chckbxNewCheckBox_4 = new JCheckBox("Edit Users");
-		chckbxNewCheckBox_4.setBounds(533, 192, 97, 23);
-		UpdateForm.add(chckbxNewCheckBox_4);
-
-		//Here is the update button from where you will but new data in database
-		btnNewButton = new JButton("Udate");
-		btnNewButton.setBounds(262, 287, 89, 23);
-		UpdateForm.add(btnNewButton);
-
+		
 		AddUserTab.setLayout(null);
-
+		AddUserTab.setBackground(Color.PINK);
 		
 		
 		//Here use will create new BillBoard
-		JCheckBox chckbxNewCheckBox = new JCheckBox("Create Billboards");
-		chckbxNewCheckBox.setBounds(185, 185, 118, 23);
-		AddUserTab.add(chckbxNewCheckBox);
+		JCheckBox Permissions_chk = new JCheckBox("Create Billboards");
+		Permissions_chk.setBounds(185, 185, 107, 23);
+		AddUserTab.add(Permissions_chk);
 
-		JLabel lblNewLabel = new JLabel("User Name");
-		lblNewLabel.setBounds(102, 75, 69, 23);
-		AddUserTab.add(lblNewLabel);
+		JLabel UserName = new JLabel("User Name");
+		UserName.setBounds(102, 75, 69, 23);
+		AddUserTab.add(UserName);
 
-		UserName_Txt_NewUSer = new JTextField();
-		UserName_Txt_NewUSer.setBounds(185, 76, 232, 20);
-		AddUserTab.add(UserName_Txt_NewUSer);
-		UserName_Txt_NewUSer.setColumns(10);
+		UserName_field = new JTextField();
+		UserName_field.setBounds(185, 76, 99, 20);
+		AddUserTab.add(UserName_field);
+		UserName_field.setColumns(10);
 
-		JLabel lblPassword = new JLabel("Password");
-		lblPassword.setBounds(102, 127, 64, 23);
-		AddUserTab.add(lblPassword);
+		;
+		Password = new JLabel("Password");
+		Password.setBounds(102, 127, 64, 23);
+		AddUserTab.add(Password);
 
-		Password_Details_NUSer = new JTextField();
-		Password_Details_NUSer.setColumns(10);
-		Password_Details_NUSer.setBounds(185, 128, 232, 20);
-		AddUserTab.add(Password_Details_NUSer);
+		Password_field = new JTextField();
+		Password_field.setColumns(10);
+		Password_field.setBounds(185, 128, 99, 20);
+		AddUserTab.add(Password_field);
 
-		JLabel lblPermissions = new JLabel("Permissions");
-		lblPermissions.setBounds(102, 185, 77, 23);
-		AddUserTab.add(lblPermissions);
+		
+		Permissions = new JLabel("Permissions");
+		Permissions.setBounds(102, 185, 77, 23);
+		AddUserTab.add(Permissions);
 
-		JCheckBox chckbxEditUsers = new JCheckBox("Edit Users");
-		chckbxEditUsers.setBounds(573, 185, 116, 23);
-		AddUserTab.add(chckbxEditUsers);
+		
+		EditUser_txt = new JCheckBox("Edit Users");
+		EditUser_txt.setBounds(573, 185, 116, 23);
+		AddUserTab.add(EditUser_txt);
 
-		JCheckBox chckbxEditAllBillboards = new JCheckBox("Edit All Billboards");
-		chckbxEditAllBillboards.setBounds(305, 185, 123, 23);
-		AddUserTab.add(chckbxEditAllBillboards);
+		EditBoard_Chk = new JCheckBox("Edit All Billboards");
+		EditBoard_Chk.setBounds(305, 185, 123, 23);
+		AddUserTab.add(EditBoard_Chk);
 
-		JCheckBox chckbxNewCheckBox_2_1 = new JCheckBox("Schedule Billboards");
-		chckbxNewCheckBox_2_1.setBounds(430, 185, 141, 23);
-		AddUserTab.add(chckbxNewCheckBox_2_1);
+		
+		Scedule_chk = new JCheckBox("Schedule Billboards");
+		Scedule_chk.setBounds(430, 185, 141, 23);
+		AddUserTab.add(Scedule_chk);
 //Here is the Submit button though which you need to put data into database
-		JButton Submit = new JButton("Submit");
-		Submit.setBounds(275, 270, 89, 23);
-		AddUserTab.add(Submit);
+		
+		Submit_btn = new JButton("Submit");
+		Submit_btn.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				
+				JOptionPane.showMessageDialog(f, "New User Added ");
+			}
+		});
+		Submit_btn.setBounds(304, 280, 89, 23);
+		AddUserTab.add(Submit_btn);
 
 		
 		//back
 		
-		JButton Back = new JButton(" ");
-		Back.setIcon(
-				new ImageIcon("C:\\Users\\sasit\\Desktop\\Billboard Control Panel\\src\\abc.png"));
-		Back.addActionListener(new ActionListener() {
+		JButton Baack = new JButton(" ");
+		Baack.setIcon(
+				new ImageIcon("C:\\Users\\sasit\\Desktop\\Updated Billboard Control Panel\\src\\abc.png"));
+		Baack.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 
 				tp.setComponentAt(0, UsersPanel);
@@ -507,14 +625,62 @@ public class ControlPanel extends JFrame {
 
 			}
 		});
-		Back.setBounds(0, 11, 53, 23);
-		AddUserTab.add(Back);
+		Baack.setBounds(0, 11, 53, 23);
+		AddUserTab.add(Baack);
 		//Label 
-		JLabel lblAddDetailsOf = new JLabel("ADD DETAILS OF NEW USER");
-		lblAddDetailsOf.setFont(new Font("Tahoma", Font.BOLD, 18));
-		lblAddDetailsOf.setSize(new Dimension(50, 50));
-		lblAddDetailsOf.setBounds(203, 0, 327, 48);
-		AddUserTab.add(lblAddDetailsOf);
+		JLabel lbllAddDetailsOf = new JLabel("ADD DETAILS OF NEW USER");
+		lbllAddDetailsOf.setFont(new Font("Tahoma", Font.BOLD, 18));
+		lbllAddDetailsOf.setSize(new Dimension(50, 50));
+		lbllAddDetailsOf.setBounds(203, 0, 327, 48);
+		AddUserTab.add(lbllAddDetailsOf);
+		
+		FName = new JLabel("FirstName");
+		FName.setBounds(294, 75, 69, 23);
+		AddUserTab.add(FName);
+		
+		FNameField = new JTextField();
+		FNameField.setColumns(10);
+		FNameField.setBounds(355, 76, 99, 20);
+		AddUserTab.add(FNameField);
+		
+		
+		LName = new JLabel("LastName");
+		LName.setBounds(461, 75, 69, 23);
+		AddUserTab.add(LName);
+		
+		Lname_field = new JTextField();
+		Lname_field.setColumns(10);
+		Lname_field.setBounds(540, 76, 99, 20);
+		AddUserTab.add(Lname_field);
+
+		BithDate = new JLabel("Birth Date");
+		BithDate.setBounds(294, 127, 69, 23);
+		AddUserTab.add(BithDate);
+		
+		Birth_Txt = new JTextField();
+		Birth_Txt.setColumns(10);
+		Birth_Txt.setBounds(355, 128, 99, 20);
+		AddUserTab.add(Birth_Txt);
+		
+		
+		MobileNO = new JLabel("mobile #");
+		MobileNO.setBounds(461, 127, 89, 23);
+		AddUserTab.add(MobileNO);
+		
+		Mobile_NoTxt = new JTextField();
+		Mobile_NoTxt.setColumns(10);
+		Mobile_NoTxt.setBounds(540, 128, 99, 20);
+		AddUserTab.add(Mobile_NoTxt);
+		
+		
+		Email = new JLabel("Email Adress");
+		Email.setBounds(102, 241, 64, 23);
+		AddUserTab.add(Email);
+		
+		Email_txt = new JTextField();
+		Email_txt.setColumns(10);
+		Email_txt.setBounds(185, 242, 351, 20);
+		AddUserTab.add(Email_txt);
 
 		
 		
@@ -540,12 +706,12 @@ public class ControlPanel extends JFrame {
 		f.getContentPane().add(tp);
 		Scedule_Form = new JPanel();
 
-		
+	
 		//Setting calander for Sceduling
 		
 		Scedule_Form.setLayout(null);
 		Scedule_Form.setBounds(new Rectangle(25, 25, 8, 8));
-
+		Scedule_Form.setBackground(Color.PINK);
 		Calendar calendar = Calendar.getInstance();
 		calendar.set(Calendar.HOUR_OF_DAY, 24); // 24 == 12 PM == 00:00:00
 		calendar.set(Calendar.MINUTE, 0);
@@ -639,12 +805,19 @@ public class ControlPanel extends JFrame {
 		Scedule_Form.add(Day_ChkBox);
 //This is Submit button YOu will submit Scedule in db from here
 		JButton Submit_Btn_Sceduling = new JButton("Submit");
+		Submit_Btn_Sceduling.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				
+				
+				JOptionPane.showMessageDialog(f, "Sucessfully Placed ");
+			}
+		});
 		Submit_Btn_Sceduling.setBounds(259, 243, 89, 23);
 		Scedule_Form.add(Submit_Btn_Sceduling);
 
 		JButton Btn_BACK_1 = new JButton("");
 		Btn_BACK_1.setIcon(
-				new ImageIcon("C:\\Users\\sasit\\Desktop\\Billboard Control Panel\\src\\abc.png"));
+				new ImageIcon("C:\\Users\\sasit\\Desktop\\Updated Billboard Control Panel\\src\\abc.png"));
 		Btn_BACK_1.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 
@@ -663,10 +836,13 @@ public class ControlPanel extends JFrame {
 		});
 
 		ListBillBoard = new JPanel();
+		ListBillBoard.setBackground(Color.PINK);
 
 		
 		// here user will se the List of all Bill Boards for view update or delete
 		tp.add("ListBillBoard", ListBillBoard);
+		tp.setForegroundAt(3, Color.BLACK);
+		tp.setBackgroundAt(3, Color.GREEN);
 		ListBillBoard.setLayout(null);
 		Title_Lbl_ListBillBoard = new JLabel("Select a Billboard you want to update , View or delete?");
 		Title_Lbl_ListBillBoard.setBounds(103, 28, 444, 22);
@@ -735,7 +911,7 @@ public class ControlPanel extends JFrame {
 		Update_BillBoard = new JPanel();
 
 		Update_BillBoard.setLayout(null);
-
+		Update_BillBoard.setBackground(Color.PINK);
 		
 		//Here user will Update a BillBoard
 		Name_txt_Ipd = new JTextField();
@@ -851,6 +1027,11 @@ public class ControlPanel extends JFrame {
 		btnNewButton_6 = new JButton("Update");
 		btnNewButton_6.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				
+				
+				JOptionPane.showMessageDialog(f, "The Bill Board has been Updated ");
+				
+				
 			}
 		});
 	//here you will put updated data in db
@@ -883,7 +1064,7 @@ public class ControlPanel extends JFrame {
 
 		btnNewButton_2 = new JButton(" ");
 		btnNewButton_2.setIcon(
-				new ImageIcon("C:\\Users\\sasit\\Desktop\\Billboard Control Panel\\src\\abc.png"));
+				new ImageIcon("C:\\Users\\sasit\\Desktop\\Updated Billboard Control Panel\\src\\abc.png"));
 		btnNewButton_2.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				tp.setComponentAt(3, ListBillBoard);
@@ -898,7 +1079,7 @@ public class ControlPanel extends JFrame {
 		ViewBillBoard.setBackground(Color.LIGHT_GRAY);
 
 		ViewBillBoard.setLayout(null);
-
+		ViewBillBoard.setBackground(Color.PINK);
 		lblNewLabel_9 = new JLabel("This is Name of Clicked Bill Board");
 		lblNewLabel_9.setBackground(Color.BLACK);
 		lblNewLabel_9.setBounds(116, 57, 223, 31);
@@ -923,7 +1104,7 @@ public class ControlPanel extends JFrame {
 
 		Backbtn_5 = new JButton(" ");
 		Backbtn_5.setIcon(
-				new ImageIcon("C:\\Users\\sasit\\Desktop\\Billboard Control Panel\\src\\abc.png"));
+				new ImageIcon("C:\\Users\\sasit\\Desktop\\Updated Billboard Control Panel\\src\\abc.png"));
 		Backbtn_5.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 
@@ -940,7 +1121,7 @@ public class ControlPanel extends JFrame {
 		lblNewLabel_5.setFont(new Font("Tahoma", Font.BOLD, 18));
 		lblNewLabel_5.setBounds(164, 11, 378, 24);
 		ChooseFromFile.add(lblNewLabel_5);
-
+		ChooseFromFile.setBackground(Color.PINK);
 		JFileChooser j_1 = new JFileChooser();
 		j_1.setBounds(20, 53, 633, 237);
 		ChooseFromFile.add(j_1);
@@ -951,7 +1132,7 @@ public class ControlPanel extends JFrame {
 
 		btn_Back_8 = new JButton(" ");
 		btn_Back_8.setIcon(
-				new ImageIcon("C:\\Users\\sasit\\Desktop\\Billboard Control Panel\\src\\abc.png"));
+				new ImageIcon("C:\\Users\\sasit\\Desktop\\Updated Billboard Control Panel\\src\\abc.png"));
 		btn_Back_8.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 
@@ -965,7 +1146,7 @@ public class ControlPanel extends JFrame {
 		UpdateExistingUser = new JPanel();
 
 		UpdateExistingUser.setLayout(null);
-
+		UpdateExistingUser.setBackground(Color.PINK);
 		lblNewLabel_1 = new JLabel("Select a User you want to Edit?");
 		lblNewLabel_1.setFont(new Font("Tahoma", Font.PLAIN, 18));
 		lblNewLabel_1.setBounds(181, 29, 324, 32);
@@ -994,7 +1175,7 @@ public class ControlPanel extends JFrame {
 
 		btn_Back6 = new JButton(" ");
 		btn_Back6.setIcon(
-				new ImageIcon("C:\\Users\\sasit\\Desktop\\Billboard Control Panel\\src\\abc.png"));
+				new ImageIcon("C:\\Users\\sasit\\Desktop\\Updated Billboard Control Panel\\src\\abc.png"));
 		btn_Back6.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 

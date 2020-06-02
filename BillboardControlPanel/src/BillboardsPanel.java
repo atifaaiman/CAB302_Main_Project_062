@@ -3,6 +3,7 @@ import org.w3c.dom.*;
 import org.xml.sax.SAXException;
 
 import javax.imageio.ImageIO;
+import javax.lang.model.element.NestingKind;
 import javax.sql.rowset.serial.SerialException;
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -24,7 +25,12 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.sql.SQLException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Base64;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -35,11 +41,13 @@ import java.util.List;
  */
 public class BillboardsPanel extends JPanel {
 
-	/** The logout button. */
-	private final JButton btnLogout = new JButton("Logout");
-
-	/** The button add billboard. */
-	private final JButton btnAddBillboard = new JButton("Add Billboard");
+	/** Billboard Panel components */
+	private final JButton btnLogout 			= new JButton("Logout");
+	private final JButton btnAddBillboard 		= new JButton("Add  ");
+	private final JButton btnShowBillboards		= new JButton("Show Billboards");
+	private final JButton btnEditBillboard 		= new JButton("Edit");
+	private final JButton btnDeleteBillboard 	= new JButton("Delete");
+	private final JButton btnPreviewBillboard 	= new JButton("Preview");
 
 	/**
 	 * The default color. It's used to check whether the user selects 'colour'
@@ -49,7 +57,7 @@ public class BillboardsPanel extends JPanel {
 
 	/** The table model all billboards. */
 	private final DefaultTableModel tblMdlAllBillboards = new DefaultTableModel(
-			new String[] { "Name", "Author", "Preview", "Edit", "Delete" }, 0) {
+			new String[] { "Name", "Author", "Date", "Time" }, 0) {
 
 		private static final long serialVersionUID = 1L;
 
@@ -68,60 +76,29 @@ public class BillboardsPanel extends JPanel {
 	/** The Constant serialVersionUID. */
 	private static final long serialVersionUID = 1L;
 
-	/** Stores current billboards, updates every {@link GUI#UPDATE_DELAY}. */
+	/** Stores current billboards, updates when click "Update List" button. */
 	private List<Billboard> billboards;
 
-	/** The add billboard panel. */
-	private final JPanel addBillboardPanel = new JPanel();
-
-	/** The button preview. */
-	private final JButton btnPreview = new JButton("Preview");
-
-	/** The button background. */
-	private final JButton btnBackground = new JButton("Select background");
-
-	/** The button message colour. */
-	private final JButton btnMsgColour = new JButton("Select message colour");
-
-	/** The button info colour. */
-	private final JButton btnInfoColour = new JButton("Select information colour");
-
-	/** The panel info colour. */
-	private final JPanel pnlInfoColour = new JPanel();
-
-	/** The panel message colour. */
-	private final JPanel pnlMsgColour = new JPanel();
-
-	/** The panel background. */
-	private final JPanel pnlBackground = new JPanel();
-
-	/** The text field message text. */
-	private final JTextField tfMsgText = new JTextField();
-
-	/** The text field info text. */
-	private final JTextField tfInfoText = new JTextField();
-
-	/** The radio button base 64. */
-	private final JRadioButton jrbBase64 = new JRadioButton("Base 64", true);
-
-	/** The radio button URL. */
-	private final JRadioButton jrbURL = new JRadioButton("URL");
-
-	/** The label select image. */
-	private final JLabel lblSelectImage = new JLabel("Select picture...");
-
-	/** The text field picture URL. */
-	private final JTextField tfPicURL = new JTextField(15);
-
-	/** The panel picture. */
-	private final JPanel pnlPicture = new JPanel();
-
-	/** The text field billboard name. */
-	private final JTextField tfBlbdName = new JTextField();
-
-	/**
-	 * The image data (when the user selects image using JFileChooser).
-	 */
+	/** Billboard Create Panel components */
+	private final JPanel addBillboardPanel 	= new JPanel();
+	private final JButton btnPreview 		= new JButton("Preview");
+	private final JButton btnBackground 	= new JButton("Background Colour");
+	private final JButton btnMsgColour 		= new JButton ("Text Colour");
+	private final JButton btnInfoColour		= new JButton("Text Colour");
+	private final JButton btnAddImage		= new JButton("Add Image");
+	private final JPanel pnlInfoColour 		= new JPanel();
+	private final JPanel pnlMsgColour 		= new JPanel();
+	private final JPanel pnlBackground		= new JPanel();
+	private final JTextField tfMsgText 		= new JTextField(15);
+	private final JTextField tfInfoText 	= new JTextField(15);
+	private final JRadioButton jrbBase64 	= new JRadioButton("Image", true);
+	private final JRadioButton jrbURL 		= new JRadioButton("URL");
+	private final JLabel lblSelectImage		= new JLabel("");
+	private final JTextField tfPicURL 		= new JTextField(
+			35
+	);
+	private final JPanel pnlPicture 		= new JPanel();
+	private final JTextField tfBlbdName		= new JTextField(15);
 	private byte[] imgData;
 
 	/**
@@ -135,53 +112,140 @@ public class BillboardsPanel extends JPanel {
 	 * Initialises the GUI components.
 	 */
 	private void initGUIComponents() {
+
+		// MAIN BILLBOARD PANEL
 		setLayout(new BorderLayout());
 		setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+		// NORTH
 		JPanel pnlNorthBillb = new JPanel(new GridLayout(1, 2));
-		pnlNorthBillb.add(new JLabel("All Billboards", SwingConstants.LEFT));
+		pnlNorthBillb.add(new JLabel("Billboards", SwingConstants.LEFT));
 		JPanel pnlLogoutBillb = new JPanel(new FlowLayout(FlowLayout.RIGHT));
 		pnlLogoutBillb.add(btnLogout);
 		pnlNorthBillb.add(pnlLogoutBillb);
 		add(pnlNorthBillb, BorderLayout.NORTH);
+		// CENTER
 		add(new JScrollPane(tblAllBillboards), BorderLayout.CENTER);
-		JPanel pnlSouthBillb = new JPanel(new FlowLayout(FlowLayout.LEFT));
-		pnlSouthBillb.add(btnAddBillboard);
-		add(pnlSouthBillb, BorderLayout.SOUTH);
+		tblAllBillboards.getTableHeader().setReorderingAllowed(false);
+		// SOUTH
+		Box boxSouth = Box.createHorizontalBox();
+		JPanel pnlLeftSouth = new JPanel(new FlowLayout(FlowLayout.CENTER));
+		pnlLeftSouth.add(btnShowBillboards);
+		pnlLeftSouth.add(btnAddBillboard);
+		pnlLeftSouth.add(btnEditBillboard);
+		pnlLeftSouth.add(btnPreviewBillboard);
+		pnlLeftSouth.add(btnDeleteBillboard);
+		boxSouth.add(pnlLeftSouth);
+		add(boxSouth, BorderLayout.SOUTH);
+
+
 
 		/*
 		 * Init AddBillboard panel.
 		 */
+		Box mainPanel = Box.createVerticalBox();
+
+		JPanel panel1 = new JPanel();
+		panel1.setLayout(new FlowLayout(FlowLayout.LEFT));
+		JPanel panel11 = new JPanel();
+		panel11.setLayout(new FlowLayout(FlowLayout.LEFT,52,10));
+		panel11.add(new JLabel("Billboard Name:"));
+		JPanel panel12 = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+		panel12.add(tfBlbdName);
+		panel12.add(pnlBackground);
+		JPanel panel13= new JPanel(new FlowLayout(FlowLayout.RIGHT));
+		panel13.add(btnBackground);
+		panel1.add(panel11);
+		panel1.add(panel12);
+		panel1.add(panel13);
+
+		JPanel panel2 = new JPanel();
+		JPanel panel21 = new JPanel();
+		panel21.setLayout(new FlowLayout(FlowLayout.LEFT, 50, 10));
+		panel21.add(new JLabel("Message:"));
+		JPanel panel22 = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+		panel22.add(tfMsgText);
+		panel22.add(pnlMsgColour);
+		JPanel panel23= new JPanel(new FlowLayout(FlowLayout.RIGHT));
+		panel23.add(btnMsgColour);
+		panel2.add(panel21);
+		panel2.add(panel22);
+		panel2.add(panel23);
+
+
+		JPanel panel3 = new JPanel();
+		JPanel panel31 = new JPanel();
+		panel31.setLayout(new FlowLayout(FlowLayout.LEFT, 40, 10));
+		panel31.add(new JLabel("Information:"));
+		JPanel panel32 = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+		panel32.add(tfInfoText);
+		panel32.add(pnlInfoColour);
+		JPanel panel33= new JPanel(new FlowLayout(FlowLayout.RIGHT));
+		panel33.add(btnInfoColour);
+		panel3.add(panel31);
+		panel3.add(panel32);
+		panel3.add(panel33);
+
+
+		JPanel panel4 = new JPanel();
+		panel4.setLayout(new FlowLayout(FlowLayout.LEFT));
+		panel4.add(jrbBase64);
+		panel4.add(lblSelectImage);
+		panel4.add(pnlPicture);
+		panel4.add(btnAddImage);
+
+		JPanel panel5 = new JPanel();
+		panel5.setLayout(new FlowLayout(FlowLayout.LEFT));
+		panel5.add(jrbURL);
+		panel5.add(tfPicURL);
+
+		JPanel panel6 = new JPanel();
+		panel6.setLayout(new FlowLayout(FlowLayout.LEFT));
+		panel6.add(btnPreview);
+
+		mainPanel.add(panel1);
+		mainPanel.add(panel2);
+		mainPanel.add(panel3);
+		mainPanel.add(panel4);
+		mainPanel.add(panel5);
+		mainPanel.add(panel6);
+		addBillboardPanel.add(mainPanel);
+
+		//-------------------------------------------------
+
+		// Components attributes
 		pnlInfoColour.setBackground(DEFAULT_COLOR);
-		pnlMsgColour.setBackground(DEFAULT_COLOR);
+		pnlMsgColour.setBackground (DEFAULT_COLOR);
 		pnlBackground.setBackground(DEFAULT_COLOR);
+		pnlInfoColour.setPreferredSize	(new Dimension (40,18));
+		pnlMsgColour.setPreferredSize	(new Dimension (40,18));
+		pnlBackground.setPreferredSize	(new Dimension (40,18));
 		ButtonGroup bg = new ButtonGroup();
 		bg.add(jrbBase64);
 		bg.add(jrbURL);
-
-		pnlPicture.add(lblSelectImage);
-		pnlPicture.add(tfPicURL);
-		pnlPicture.setPreferredSize(new Dimension(100, 40));
+		//pnlPicture.add(lblSelectImage);
+		//pnlPicture.add(tfPicURL);
+		//pnlPicture.setPreferredSize(new Dimension(120, 70));
 		tfPicURL.setVisible(false); // Because base64 by default.
 
-		addBillboardPanel.setLayout(new GridLayout(9, 2, 10, 10));
-		addBillboardPanel.add(new JLabel("Enter Billboard name:"));
-		addBillboardPanel.add(tfBlbdName);
-		addBillboardPanel.add(btnBackground);
-		addBillboardPanel.add(pnlBackground);
-		addBillboardPanel.add(btnMsgColour);
-		addBillboardPanel.add(pnlMsgColour);
-		addBillboardPanel.add(btnInfoColour);
-		addBillboardPanel.add(pnlInfoColour);
-		addBillboardPanel.add(new JLabel("Add message text:"));
-		addBillboardPanel.add(tfMsgText);
-		addBillboardPanel.add(new JLabel("Add information text:"));
-		addBillboardPanel.add(tfInfoText);
-		addBillboardPanel.add(jrbBase64);
-		addBillboardPanel.add(jrbURL);
-		addBillboardPanel.add(new JLabel("Add Picture:"));
-		addBillboardPanel.add(pnlPicture);
-		addBillboardPanel.add(btnPreview);
-		addBillboardPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+		//addBillboardPanel.setLayout(new GridLayout(9, 2, 10, 10));
+		//addBillboardPanel.add(new JLabel("Billboard name:"));
+		//addBillboardPanel.add(tfBlbdName);
+		//addBillboardPanel.add(btnBackground);
+		//addBillboardPanel.add(pnlBackground);
+		//addBillboardPanel.add(btnMsgColour);
+		//addBillboardPanel.add(pnlMsgColour);
+		//addBillboardPanel.add(btnInfoColour);
+		//addBillboardPanel.add(pnlInfoColour);
+		//addBillboardPanel.add(new JLabel("Add message text:"));
+		//addBillboardPanel.add(tfMsgText);
+		//addBillboardPanel.add(new JLabel("Add information text:"));
+		//addBillboardPanel.add(tfInfoText);
+		//addBillboardPanel.add(jrbBase64);
+		//addBillboardPanel.add(jrbURL);
+		//addBillboardPanel.add(new JLabel("Add Picture:"));
+		//addBillboardPanel.add(pnlPicture);
+		//addBillboardPanel.add(btnPreview);
+		//addBillboardPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 	}
 
 	/**
@@ -199,7 +263,7 @@ public class BillboardsPanel extends JPanel {
 			imgData = Files.readAllBytes(img.toPath());
 
 			BufferedImage bi = ImageIO.read(img);
-			Image image = bi.getScaledInstance(100, 40, Image.SCALE_SMOOTH);
+			Image image = bi.getScaledInstance(120, 50, Image.SCALE_SMOOTH);
 			lblSelectImage.setIcon(new ImageIcon(image));
 			lblSelectImage.setText(null);
 		}
@@ -358,7 +422,10 @@ public class BillboardsPanel extends JPanel {
 		guiPreview.updateBillboard(doc);
 		guiPreview.revalidate();
 		guiPreview.updateUI();
-		JOptionPane.showMessageDialog(null, guiPreview);
+		JOptionPane.showMessageDialog(null, guiPreview, "Billboard Preview",JOptionPane.PLAIN_MESSAGE );
+
+		//int add = JOptionPane.showConfirmDialog(this, pnlAddUser, "Add User",
+		//		JOptionPane.OK_CANCEL_OPTION,JOptionPane.PLAIN_MESSAGE);
 	}
 
 	/**
@@ -420,7 +487,7 @@ public class BillboardsPanel extends JPanel {
 			}
 		}
 		int edit = JOptionPane.showConfirmDialog(this, addBillboardPanel, "Edit Billboard",
-				JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);
+				JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
 		if (edit == 0) { // If OK.
 
 			blbrd.setXmlData(Files.readAllBytes(Paths.get("temp/billboard.xml")));
@@ -441,8 +508,9 @@ public class BillboardsPanel extends JPanel {
 	public Billboard addBuilboard() throws SerialException, SQLException, IOException {
 
 		Billboard billboard = null;
-		int add = JOptionPane.showConfirmDialog(this, addBillboardPanel, "Add Billboard", JOptionPane.OK_CANCEL_OPTION,
-				JOptionPane.QUESTION_MESSAGE);
+		int add = JOptionPane.showConfirmDialog(this, addBillboardPanel, "Add Billboard",
+				JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+
 		if (add == 0) { // If OK.
 			String blbdName = tfBlbdName.getText().trim();
 			if (blbdName.isEmpty()) {
@@ -453,7 +521,6 @@ public class BillboardsPanel extends JPanel {
 			billboard.setXmlData(Files.readAllBytes(Paths.get("temp/billboard.xml")));
 			billboard.setName(blbdName);
 		}
-
 		return billboard;
 	}
 
@@ -467,7 +534,14 @@ public class BillboardsPanel extends JPanel {
 		this.billboards = billboards;
 		tblMdlAllBillboards.setRowCount(0);
 		for (Billboard b : billboards) {
-			tblMdlAllBillboards.addRow(new Object[] { b.getName(), b.getUsername(), "Prevew", "Edit", "Delete" });
+			// Format date and time
+			String data = b.getDataTime();
+			String dataSplit[] = data.split(" ");
+			String time = dataSplit[1];
+			String dateSplit[] = dataSplit[0].split("-");
+			String date = dateSplit[2]+"/"+dateSplit[1]+"/"+dateSplit[0];
+
+			tblMdlAllBillboards.addRow(new Object[] { b.getName(), b.getUsername(), date, time });
 		}
 		revalidate();
 		updateUI();
@@ -475,7 +549,6 @@ public class BillboardsPanel extends JPanel {
 
 	/**
 	 * Gets the button logout.
-	 *
 	 * @return the button logout
 	 */
 	public JButton getBtnLogout() {
@@ -484,7 +557,6 @@ public class BillboardsPanel extends JPanel {
 
 	/**
 	 * Gets the button add billboard.
-	 *
 	 * @return the button add billboard
 	 */
 	public JButton getBtnAddBillboard() {
@@ -493,7 +565,6 @@ public class BillboardsPanel extends JPanel {
 
 	/**
 	 * Gets the button preview.
-	 *
 	 * @return the button preview
 	 */
 	public JButton getBtnPreview() {
@@ -502,7 +573,6 @@ public class BillboardsPanel extends JPanel {
 
 	/**
 	 * Gets the button background.
-	 *
 	 * @return the button background
 	 */
 	public JButton getBtnBackground() {
@@ -511,7 +581,6 @@ public class BillboardsPanel extends JPanel {
 
 	/**
 	 * Gets the button message colour.
-	 *
 	 * @return the button message colour
 	 */
 	public JButton getBtnMsgColour() {
@@ -520,7 +589,6 @@ public class BillboardsPanel extends JPanel {
 
 	/**
 	 * Gets the button info colour.
-	 *
 	 * @return the button info colour
 	 */
 	public JButton getBtnInfoColour() {
@@ -529,7 +597,6 @@ public class BillboardsPanel extends JPanel {
 
 	/**
 	 * Gets the radio button base 64.
-	 *
 	 * @return the radio button base 64
 	 */
 	public JRadioButton getJrbBase64() {
@@ -538,7 +605,6 @@ public class BillboardsPanel extends JPanel {
 
 	/**
 	 * Gets the radio button URL.
-	 *
 	 * @return the radio button URL
 	 */
 	public JRadioButton getJrbURL() {
@@ -547,7 +613,6 @@ public class BillboardsPanel extends JPanel {
 
 	/**
 	 * Gets the label select image.
-	 *
 	 * @return the label select image
 	 */
 	public JLabel getLblSelectImage() {
@@ -556,7 +621,6 @@ public class BillboardsPanel extends JPanel {
 
 	/**
 	 * Gets the text field picture URL.
-	 *
 	 * @return the text field picture URL
 	 */
 	public JTextField getTfPicURL() {
@@ -565,7 +629,6 @@ public class BillboardsPanel extends JPanel {
 
 	/**
 	 * Gets the adds the billboard panel.
-	 *
 	 * @return the adds the billboard panel
 	 */
 	public JPanel getAddBillboardPanel() {
@@ -574,7 +637,6 @@ public class BillboardsPanel extends JPanel {
 
 	/**
 	 * Gets the table all billboards.
-	 *
 	 * @return the table all billboards
 	 */
 	public JTable getTblAllBillboards() {
@@ -584,11 +646,52 @@ public class BillboardsPanel extends JPanel {
 	/**
 	 * Gets the panel picture. This getter is required to add listener to show
 	 * JFileChooser when the user clicks on this panel.
-	 *
 	 * @return the panel picture
 	 */
 	public JPanel getPnlPicture() {
 		return pnlPicture;
+	}
+
+
+	/**
+	 * Gets the button Edit.
+	 * @return the button Edit
+	 */
+	public  JButton getBtnEditBillboard(){
+		return btnEditBillboard;
+	}
+
+	/**
+	 * Gets the button Delete.
+	 * @return the button Delete
+	 */
+	public  JButton getBtnDeleteBillboard(){
+		return btnDeleteBillboard;
+	}
+
+	/**
+	 * Gets the button Show.
+	 * @return the button Show
+	 */
+	public  JButton getBtnShowBillboards(){
+		return btnShowBillboards;
+	}
+
+	/**
+	 * Gets the button Preview from Main Panel.
+	 * @return the button Show
+	 */
+	public  JButton getBtnPreviewBillboard(){
+		return btnPreviewBillboard;
+	}
+
+
+	/**
+	 * Gets the button AddImage .
+	 * @return the button Show
+	 */
+	public  JButton getBtnAddImage(){
+		return btnAddImage;
 	}
 
 }

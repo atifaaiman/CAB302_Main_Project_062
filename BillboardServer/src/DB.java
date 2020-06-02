@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
+import javax.naming.NamingEnumeration;
 import javax.sql.rowset.serial.SerialBlob;
 
 import common.Billboard;
@@ -85,7 +86,6 @@ public class DB {
 	}
 
 	// ----------------------------------------------- BILLBOARD ------------------------------------------------------
-
 	/**
 	 * Adds the billboard.
 	 *
@@ -93,13 +93,22 @@ public class DB {
 	 * @throws SQLException the SQL exception
 	 */
 	public static void addBillboard(Billboard billboard) throws SQLException {
+		System.out.println(billboard);
+		LocalDateTime localDate = LocalDateTime.now();
+		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("YYYY-MM-dd HH:mm:ss");
+		String currentDate =  dtf.format(localDate).toString();
+		System.out.println(currentDate);
 
 		try (Connection conn = getConnection();
-			 PreparedStatement stmt = conn.prepareStatement("insert into billboard value(?,?,?)")) {
+			 PreparedStatement stmt = conn.prepareStatement("insert into billboard value(?,?,?,?)")) {
 			stmt.setString(1, billboard.getName());
 			stmt.setBlob(2, new SerialBlob(billboard.getXmlData()));
 			stmt.setString(3, billboard.getUsername());
+			stmt.setString(4, currentDate);
 			stmt.executeUpdate();
+		}
+		catch (Exception e){
+			System.out.println(e.getMessage());
 		}
 	}
 
@@ -128,7 +137,12 @@ public class DB {
 		try (Connection conn = getConnection(); Statement stmt = conn.createStatement()) {
 			try (ResultSet rs = stmt.executeQuery("select * from billboard")) {
 				while (rs.next()) {
-					billboards.add(new Billboard(rs.getString(1), rs.getBytes(2), rs.getString(3)));
+					Billboard billboard = new Billboard();
+					billboard.setName(rs.getString(1));
+					billboard.setXmlData(rs.getBytes(2));
+					billboard.setUsername(rs.getString(3));
+					billboard.setDataTime(rs.getString(4));
+					billboards.add(billboard);
 				}
 			}
 		}

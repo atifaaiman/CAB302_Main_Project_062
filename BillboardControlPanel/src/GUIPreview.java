@@ -38,7 +38,7 @@ public class GUIPreview extends JPanel {
 	static Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 	private static int screenHeight = screenSize.height;
 	private static int  screenWidth = screenSize.width;
-	public final static Dimension SCREEN_SIZE = new Dimension(screenWidth-200, screenHeight-150 );
+	public final static Dimension SCREEN_SIZE = new Dimension(screenWidth-100, screenHeight-120 );
 
 	/** The Constant WIDTH_GAP. */
 	public final static double WIDTH_GAP = 0.125;
@@ -389,7 +389,7 @@ public class GUIPreview extends JPanel {
 		int newSize = (int) (curFont.getSize() * widthScale);
 		int componentHeight = (int) msgLbl.getPreferredSize().getHeight();
 		int newFontSize = Math.min(newSize, componentHeight);
-		return newFontSize;
+		return newFontSize - 4;  // Test Fernando add -4
 	}
 
 	/**

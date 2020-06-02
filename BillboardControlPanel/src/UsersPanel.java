@@ -80,6 +80,10 @@ public class UsersPanel extends JPanel {
 	 * Initiates the GUI components.
 	 */
 	private void initGUIComponents() {
+
+		//--------------------------------------------------------------------------------------------------------------
+		// MAIN PANEL
+		//--------------------------------------------------------------------------------------------------------------
 		setLayout(new BorderLayout());
 		setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 		// North Layout
@@ -108,7 +112,7 @@ public class UsersPanel extends JPanel {
 				boxSouth.add(pnlLeftSouth);
 		add(boxSouth, BorderLayout.SOUTH);
 
-
+		//--------------------------------------------------------------------------------------------------------------
 		/*
 		 * AddUser Panel
 		 * Init components for AddUser panel required for JOptionPane to be displayed.
@@ -155,7 +159,7 @@ public class UsersPanel extends JPanel {
 		boxAddUser.add(panel_7);
 		pnlAddUser.add(boxAddUser);
 
-
+		//--------------------------------------------------------------------------------------------------------------
 		/*
 		 * EditUSer Panel
 		 * Init components for AddUser panel required for JOptionPane to be displayed.
@@ -204,12 +208,15 @@ public class UsersPanel extends JPanel {
 		pnlEditUser.add(boxEditUser);
 
 		// Action Listener to control change password label
-		getCbChangePassword().addActionListener(e->setPassword());
+		getCbChangePasswordEditUser().addActionListener(e->setPassword());
 	}
 
+	/**
+	 * Make the editable the password.
+	 */
 	private void setPassword(){
-		if(cbChangePassword.isSelected() == true)pfPassword.setEditable(true);
-		else pfPassword.setEditable(false);
+		if(cbChangePasswordEditUser.isSelected() == true)pfPasswordEditUser.setEditable(true);
+		else pfPasswordEditUser.setEditable(false);
 	}
 
 	private void setAdministrator(){
@@ -227,7 +234,8 @@ public class UsersPanel extends JPanel {
 		for (User user : users) {
 			tblMdlAllUsers.addRow(
 					new Object[] { user.getUsername(), user.getAdministrator(),user.getCreate_billboards(),
-							user.getEdit_all_billboards(), user.getSchedule_billboards(), user.getEdit_users(), user.getPassword() });
+							user.getEdit_all_billboards(), user.getSchedule_billboards(), user.getEdit_users(),
+							user.getPassword() });
 		}
 		revalidate();
 		updateUI();
@@ -326,7 +334,7 @@ public class UsersPanel extends JPanel {
 		int update = JOptionPane.showConfirmDialog(this, pnlEditUser, "Edit User",
 				JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
 		if (update == 0) { 										// If OK.
-			String pswrd = new String(pfPassword.getPassword());
+			String pswrd = new String(pfPasswordEditUser.getPassword());
 			pswrd = pswrd.trim();
 
 			// If Administrator is selected then set all permission to true.
@@ -433,8 +441,8 @@ public class UsersPanel extends JPanel {
 	 * Gets checkbox change Password.
 	 * @return cbChangePassword checkBox.
 	 */
-	public  JCheckBox getCbChangePassword(){
-		return  cbChangePassword;
+	public  JCheckBox getCbChangePasswordEditUser(){
+		return  cbChangePasswordEditUser;
 	}
 
 

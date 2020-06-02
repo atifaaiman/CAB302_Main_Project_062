@@ -3,6 +3,8 @@ import java.time.LocalDateTime;
 
 import javax.swing.*;
 
+import static javax.swing.JOptionPane.PLAIN_MESSAGE;
+
 /**
  * The Class GUI that encapsulates user interface
  * for control panel. Starts from Login panel.

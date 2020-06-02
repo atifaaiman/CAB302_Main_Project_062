@@ -11,14 +11,10 @@ public class Billboard implements Serializable {
 	/** The Constant serialVersionUID. */
 	private static final long serialVersionUID = 1L;
 
-	/** The name. */
 	private String name;
-
-	/** The xml data. */
 	private byte[] xmlData;
-
-	/** The username. */
 	private String username;
+	private String dateTime;
 
 	/**
 	 * Instantiates a new billboard.
@@ -29,7 +25,6 @@ public class Billboard implements Serializable {
 
 	/**
 	 * Instantiates a new billboard.
-	 *
 	 * @param name     the name
 	 * @param xmlData  the xml data
 	 * @param username the username
@@ -42,7 +37,6 @@ public class Billboard implements Serializable {
 
 	/**
 	 * Gets the name.
-	 *
 	 * @return the name
 	 */
 	public String getName() {
@@ -51,7 +45,6 @@ public class Billboard implements Serializable {
 
 	/**
 	 * Sets the name.
-	 *
 	 * @param name the new name
 	 */
 	public void setName(String name) {
@@ -60,7 +53,6 @@ public class Billboard implements Serializable {
 
 	/**
 	 * Gets the xml data.
-	 *
 	 * @return the xml data
 	 */
 	public byte[] getXmlData() {
@@ -69,7 +61,6 @@ public class Billboard implements Serializable {
 
 	/**
 	 * Sets the xml data.
-	 *
 	 * @param xmlData the new xml data
 	 */
 	public void setXmlData(byte[] xmlData) {
@@ -78,7 +69,6 @@ public class Billboard implements Serializable {
 
 	/**
 	 * Gets the username.
-	 *
 	 * @return the username
 	 */
 	public String getUsername() {
@@ -87,11 +77,28 @@ public class Billboard implements Serializable {
 
 	/**
 	 * Sets the username.
-	 *
 	 * @param username the new username
 	 */
 	public void setUsername(String username) {
 		this.username = username;
 	}
+
+	/**
+	 * Gets the dateTime.
+	 * @return dateTime in a string format "YYYY-MM-dd HH:MM:ss"
+	 */
+	public String getDataTime(){
+		return dateTime;
+	}
+
+	/**
+	 * Sets the dateTime.
+	 * @param dateTime in a string format "YYYY-MM-dd HH:MM:ss"
+	 */
+	public void setDataTime(String  dateTime){
+		this.dateTime = dateTime;
+	}
+
+
 
 }

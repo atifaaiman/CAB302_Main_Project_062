@@ -71,6 +71,7 @@ public class Login {
         // Line 4 -  Login and Cancel button
         JButton loginButton = new JButton("Login ");
         JButton cancelButton = new JButton("Cancel");
+
         // Buttons listeners
         loginButton.addActionListener(e->{
             String user = userTextBox.getText();
@@ -84,20 +85,18 @@ public class Login {
             closeLogin();
         });
 
-
-
-        // Add componets in the panel_1
+        // Add componts in the      panel_1
         panel_1.add(message);
-        // Add components in the panel_2
+        // Add components in the    panel_2
         panel_2.add(userLabel);
         panel_2.add(userTextBox);
-        // Add components in the panel_3
+        // Add components in the    panel_3
         panel_3.add(passwordLabel);
         panel_3.add(passwordText);
-        // Add component in the panel_4
+        // Add component in the     panel_4
         panel_4.add(loginButton);
         panel_4.add(cancelButton);
-        // Add components in the box
+        // Add components in the    box
         Box theBox = Box.createVerticalBox();
         theBox.add(Box.createVerticalStrut(20));
         theBox.add(panel_1);

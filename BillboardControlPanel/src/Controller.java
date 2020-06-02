@@ -85,6 +85,7 @@ public class Controller implements Observable {
 		gui.getUsersPanel().getBtnShowUsers().addActionListener(e -> showUsers());										// Added by Fernando
 		gui.getUsersPanel().getBtnDeleteUser().addActionListener(e -> deleteUser(rowSelected));						    // Added by Fernando
 		gui.getUsersPanel().getBtnEditUser().addActionListener(e -> editUser(rowSelected));						        // Added by Fernando
+		//gui.getUsersPanel().getCbChangePassword().addActionListener(e-> ());
 		gui.getUsersPanel().getBtnLogout().addActionListener(e -> logout());
 		gui.getUsersPanel().getBtnAddUser().addActionListener(e -> addUser());
 		gui.getUsersPanel().getTblAllUsers().addMouseListener(new MouseAdapter() {
@@ -95,6 +96,7 @@ public class Controller implements Observable {
 				String columnName = gui.getUsersPanel().getTblAllUsers().getColumnName(colNumber);
 				rowSelected = row;
 				System.out.println("Row number: " + rowSelected);
+				//System.out.println( "ColumnNAme: " + columnName);
 				// Added bu Fernando
 				if (columnName == "Edit") {
 					//System.out.println("Edit");																		// Added by Fernando
@@ -355,7 +357,6 @@ public class Controller implements Observable {
 
 	/**
 	 * Close the program the application.
-
 	 */
 	public void closeLogin(){
 		System.exit(0);
@@ -375,11 +376,11 @@ public class Controller implements Observable {
 			switch (msg.permission()) {
 			case Permission.EDIT_USERS:
 				gui.showUsers();
-				//timerUpdateUsers.start();      ///// Test **********************
+				//timerUpdateUsers.start();         ///// Test **********************
 				break;
 			case Permission.CREATE_BILLBOARDS:
 				gui.showBillboards();
-				timerUpdateBillboards.start();
+				//timerUpdateBillboards.start();    ///// Test **********************
 				break;
 			case Permission.EDIT_ALL_BILLBOARDS:
 				gui.showBillboards();

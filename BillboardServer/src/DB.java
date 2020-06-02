@@ -459,23 +459,43 @@ public class DB {
 	 * @throws SQLException the SQL exception
 	 */
 	public static void updateUser(User user) throws SQLException {
+		if(user.getPassword().isEmpty()){
+			System.out.println("Password is empty");
+			try (Connection conn = getConnection();
+				 PreparedStatement stmt = conn
+						 //.prepareStatement("update user set password=?, permission=? where " + "username=?")) {             // Old Code
+						 .prepareStatement("update user set permission=?, administrator=?, " +			      // New code
+								 "create_billboards=?, edit_all_billboards=?, schedule_billboards=?, edit_users=?" +		  // New code
+								 " where " + "username=?")) {
 
-		try (Connection conn = getConnection();
-			 PreparedStatement stmt = conn
-					 //.prepareStatement("update user set password=?, permission=? where " + "username=?")) {             // Old Code
-					 .prepareStatement("update user set password=?, permission=?, administrator=?, " +			      // New code
-							 "create_billboards=?, edit_all_billboards=?, schedule_billboards=?, edit_users=?" +		  // New code
-							 " where " + "username=?")) {
-			stmt.setString (1, user.getPassword());
-			stmt.setString (2, user.getPermission());
-			stmt.setBoolean(3, user.getAdministrator());													  // New code
-			stmt.setBoolean(4, user.getCreate_billboards());												  // New code
-			stmt.setBoolean(5, user.getEdit_all_billboards());											  // New code
-			stmt.setBoolean(6, user.getSchedule_billboards());											  // New code
-			stmt.setBoolean(7, user.getEdit_users());														  // New code
-			stmt.setString (8, user.getUsername());
-			stmt.executeUpdate();
+				stmt.setString (1, user.getPermission());
+				stmt.setBoolean(2, user.getAdministrator());													  // New code
+				stmt.setBoolean(3, user.getCreate_billboards());												  // New code
+				stmt.setBoolean(4, user.getEdit_all_billboards());											  // New code
+				stmt.setBoolean(5, user.getSchedule_billboards());											  // New code
+				stmt.setBoolean(6, user.getEdit_users());														  // New code
+				stmt.setString (7, user.getUsername());
+				stmt.executeUpdate();
+			}
+		}else{
+			try (Connection conn = getConnection();
+				 PreparedStatement stmt = conn
+						 //.prepareStatement("update user set password=?, permission=? where " + "username=?")) {             // Old Code
+						 .prepareStatement("update user set password=?, permission=?, administrator=?, " +			      // New code
+								 "create_billboards=?, edit_all_billboards=?, schedule_billboards=?, edit_users=?" +		  // New code
+								 " where " + "username=?")) {
+				stmt.setString (1, user.getPassword());
+				stmt.setString (2, user.getPermission());
+				stmt.setBoolean(3, user.getAdministrator());													  // New code
+				stmt.setBoolean(4, user.getCreate_billboards());												  // New code
+				stmt.setBoolean(5, user.getEdit_all_billboards());											  // New code
+				stmt.setBoolean(6, user.getSchedule_billboards());											  // New code
+				stmt.setBoolean(7, user.getEdit_users());														  // New code
+				stmt.setString (8, user.getUsername());
+				stmt.executeUpdate();
+			}
 		}
+
 	}
 
 	// --------------------------------------------------- XML --------------------------------------------------------

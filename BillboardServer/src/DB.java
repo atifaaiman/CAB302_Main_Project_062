@@ -285,7 +285,6 @@ public class DB {
 
 	/**
 	 * Adds the schedule.
-	 *
 	 * @param sched the schedule
 	 * @throws SQLException the SQL exception
 	 */

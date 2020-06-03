@@ -90,6 +90,9 @@ public class Controller implements Observable {
 		// Schedule
 		gui.getSchedulesPanel().getBtnAddSchedule().addActionListener(e -> addSchedule());
 		gui.getSchedulesPanel().getBtnLogout().addActionListener(e -> logout());
+		gui.getSchedulesPanel().getBtnShowSchedule().addActionListener(e-> {
+			showSchedules();
+		});
 
 		// User Panel
 		gui.getUsersPanel().getBtnShowUsers().addActionListener(e -> showUsers());												// Added by Fernando
@@ -344,6 +347,7 @@ public class Controller implements Observable {
 	private void showSchedules() {
 		try {
 			outputCommandHandler.allSchedules(inputCommandHandler.getSessionToken());
+			outputCommandHandler.allBillboards(inputCommandHandler.getSessionToken());
 		} catch (IOException exc) {
 			GUI.displayError(exc.getMessage());
 		}
@@ -501,8 +505,8 @@ public class Controller implements Observable {
 				break;
 			case Permission.SCHEDULE_BILLBOARDS:
 				gui.showSchedules();
-				timerUpdateSchedules.start();
-				timerUpdateBillboards.start();
+				//timerUpdateSchedules.start();		///// Test **********************
+				//timerUpdateBillboards.start();	///// Test **********************
 				break;
 			}
 			break;
@@ -519,6 +523,7 @@ public class Controller implements Observable {
 				break;
 			case USERS:
 				gui.getUsersPanel().updateTable(msg.users());
+
 				break;
 			case LOGOUT:
 				//timerUpdateUsers.stop();																	// Test

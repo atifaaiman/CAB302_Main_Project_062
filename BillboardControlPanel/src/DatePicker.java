@@ -15,7 +15,7 @@ class DatePicker {
         d.setModal(true);
         String[] header = { "Sun", "Mon", "Tue", "Wed", "Thur", "Fri", "Sat" };
         JPanel p1 = new JPanel(new GridLayout(7, 7));
-        p1.setPreferredSize(new Dimension(430, 120));
+        p1.setPreferredSize(new Dimension(430, 220));
 
         for (int x = 0; x <button.length ; x++) {
             final int selection = x;
@@ -27,11 +27,13 @@ class DatePicker {
                     public void actionPerformed(ActionEvent ae) {
                         day = button[selection].getActionCommand();
                         d.dispose();
+                        System.out.println("Date: " + day +"/"+month+"/"+year);
+
                     }
                 });
             if (x < 7) {
                 button[x].setText(header[x]);
-                button[x].setForeground(Color.red);
+                button[x].setForeground(Color.blue);
             }
             p1.add(button[x]);
         }
@@ -88,5 +90,7 @@ class DatePicker {
         cal.set(year, month, Integer.parseInt(day));
         return sdf.format(cal.getTime());
     }
+
+
 }
 

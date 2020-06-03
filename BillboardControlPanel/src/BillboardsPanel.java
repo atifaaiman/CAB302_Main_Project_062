@@ -3,13 +3,10 @@ import org.w3c.dom.*;
 import org.xml.sax.SAXException;
 
 import javax.imageio.ImageIO;
-import javax.lang.model.element.NestingKind;
-import javax.print.Doc;
 import javax.sql.rowset.serial.SerialException;
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.DefaultTableModel;
-import javax.xml.catalog.Catalog;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -21,21 +18,14 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.SQLException;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.Base64;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -92,6 +82,8 @@ public class BillboardsPanel extends JPanel {
 	private final JButton btnInfoColour		= new JButton("Text Colour");
 	private final JButton btnAddImage		= new JButton("Add ");
 	private final JButton btnDeleteImage	= new JButton("Delete");
+	private final JButton btnImportXml		= new JButton("Import XML");
+	private final JButton btnExportXml		= new JButton("Export XML");
 	private final JPanel pnlInfoColour 		= new JPanel();
 	private final JPanel pnlMsgColour 		= new JPanel();
 	private final JPanel pnlBackground		= new JPanel();
@@ -137,11 +129,14 @@ public class BillboardsPanel extends JPanel {
 		// CENTER
 		add(new JScrollPane(tblAllBillboards), BorderLayout.CENTER);
 		tblAllBillboards.getTableHeader().setReorderingAllowed(false);
+
 		// SOUTH
 		Box boxSouth = Box.createHorizontalBox();
 		JPanel pnlLeftSouth = new JPanel(new FlowLayout(FlowLayout.CENTER));
 		pnlLeftSouth.add(btnShowBillboards);
 		pnlLeftSouth.add(btnAddBillboard);
+		pnlLeftSouth.add(btnImportXml);
+		pnlLeftSouth.add(btnExportXml);
 		pnlLeftSouth.add(btnEditBillboard);
 		pnlLeftSouth.add(btnPreviewBillboard);
 		pnlLeftSouth.add(btnDeleteBillboard);
@@ -182,7 +177,6 @@ public class BillboardsPanel extends JPanel {
 		panel2.add(panel22);
 		panel2.add(panel23);
 
-
 		JPanel panel3 = new JPanel();
 		JPanel panel31 = new JPanel();
 		panel31.setLayout(new FlowLayout(FlowLayout.LEFT, 40, 10));
@@ -195,7 +189,6 @@ public class BillboardsPanel extends JPanel {
 		panel3.add(panel31);
 		panel3.add(panel32);
 		panel3.add(panel33);
-
 
 		JPanel panel4 = new JPanel();
 		panel4.setLayout(new FlowLayout(FlowLayout.LEFT));
@@ -218,6 +211,7 @@ public class BillboardsPanel extends JPanel {
 		JPanel panel6 = new JPanel();
 		panel6.setLayout(new FlowLayout(FlowLayout.RIGHT));
 		panel6.add(btnPreview);
+
 		setDefaultColors();
 		mainPanel.add(panel1);
 		mainPanel.add(panel2);
@@ -260,6 +254,7 @@ public class BillboardsPanel extends JPanel {
 		btnDeleteBillboard.setEnabled(false);
 		btnEditBillboard.setEnabled(false);
 		btnPreviewBillboard.setEnabled(false);
+		btnExportXml.setEnabled(false);
 	}
 
 	/**
@@ -315,7 +310,6 @@ public class BillboardsPanel extends JPanel {
 	public Billboard deleteBillboard(int row) {
 		disableButtons();
 		return billboards.get(row);
-
 	}
 
 	/**
@@ -438,12 +432,6 @@ public class BillboardsPanel extends JPanel {
 			throw new Exception("Select at least 1 attribute!");
 		}
 
-//		TransformerFactory transformerFactory = TransformerFactory.newInstance();
-//		Transformer transformer = transformerFactory.newTransformer();
-//		DOMSource source = new DOMSource(doc);
-//		StreamResult result = new StreamResult(new File("temp/billboard.xml"));
-//		transformer.transform(source, result);
-
 		lblSelectImage.setText("");
 		return doc;
 	}
@@ -453,7 +441,6 @@ public class BillboardsPanel extends JPanel {
 	 * @throws TransformerException
 	 */
 	public void setTempXML(Document doc) throws TransformerException {
-
 		TransformerFactory transformerFactory = TransformerFactory.newInstance();
 		Transformer transformer = transformerFactory.newTransformer();
 		DOMSource source = new DOMSource(doc);
@@ -524,14 +511,14 @@ public class BillboardsPanel extends JPanel {
 					URL picURL = new URL(url.getTextContent());
 
 					BufferedImage bi = ImageIO.read(picURL);
-					Image image = bi.getScaledInstance(100, 40, Image.SCALE_SMOOTH);
+					Image image = bi.getScaledInstance(imgWidth, imgHeight, Image.SCALE_SMOOTH);
 					lblSelectImage.setIcon(new ImageIcon(image));
 					lblSelectImage.setText(null);
 				} else if (data != null && url == null) {
 
 					BufferedImage bi = ImageIO.read(
 							new ByteArrayInputStream(imgData = Base64.getDecoder().decode(data.getTextContent())));
-					Image image = bi.getScaledInstance(100, 40, Image.SCALE_SMOOTH);
+					Image image = bi.getScaledInstance(imgWidth, imgHeight, Image.SCALE_SMOOTH);
 					lblSelectImage.setIcon(new ImageIcon(image));
 					lblSelectImage.setText(null);
 				}
@@ -562,6 +549,172 @@ public class BillboardsPanel extends JPanel {
 		return blbrd;
 	}
 
+//------------------------------------------------- XML ----------------------------------------------------------------
+	/**
+	 * Export XML to user's computer
+	 */
+	public void exportXML(int row) throws ParserConfigurationException, IOException, SAXException, TransformerException {
+
+		Billboard billboard = billboards.get(row);
+
+		// Get xnl file from billboard
+		DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+		DocumentBuilder docBuilder = dbFactory.newDocumentBuilder();
+		Document doc = docBuilder.parse(new ByteArrayInputStream(billboard.getXmlData()));
+		doc.getDocumentElement().normalize();
+
+		// Transform xml into string
+		DOMSource domSource = new DOMSource(doc);
+		Transformer transformer = TransformerFactory.newInstance().newTransformer();
+		StringWriter sw = new StringWriter();
+		StreamResult sr = new StreamResult(sw);
+		transformer.transform(domSource, sr);
+		String xmlString = sw.toString();
+
+		// Open the save file Window
+		JFileChooser fileChooser = new JFileChooser();
+		FileNameExtensionFilter filter = new FileNameExtensionFilter("XML files","xml");
+		fileChooser.setFileFilter(filter);
+		fileChooser.setDialogTitle("Save XML file");
+		int userSelection = fileChooser.showSaveDialog(this);
+		if (userSelection == JFileChooser.APPROVE_OPTION) {
+			File fileToSave = fileChooser.getSelectedFile();
+
+			// Check if the file already exist
+			boolean exists = new File(fileToSave.getAbsolutePath()+".xml").exists();
+
+			// If file does not exist
+			if (!exists){
+				FileWriter newFile = new FileWriter(fileToSave.getAbsolutePath()+".xml");
+				newFile.write(xmlString);
+				newFile.close();
+
+			}// If file exists
+			else {
+				JOptionPane.showMessageDialog(new JFrame(), "File already exit!\nPlease choose another file name.", "Error Message",
+						JOptionPane.ERROR_MESSAGE);
+			}
+		}
+}
+
+	/**
+	 * Import XML from the user computer
+	 */
+	public Billboard importXML()  {
+
+		JFileChooser chooser = new JFileChooser();
+		FileNameExtensionFilter filter = new FileNameExtensionFilter("XML files","xml");
+		chooser.setFileFilter(filter);
+		Document doc;
+		Billboard billboard = null;
+
+		int returnVal = chooser.showOpenDialog(null);
+		if (returnVal == JFileChooser.APPROVE_OPTION) {
+			File xml = chooser.getSelectedFile();
+			//System.out.println(xml);
+			try{
+				DocumentBuilderFactory dbfac = DocumentBuilderFactory.newInstance();
+				DocumentBuilder docBuilder = dbfac.newDocumentBuilder();
+				doc = docBuilder.parse(xml);
+				setTempXML(doc);
+				billboard = addXml(doc);
+				return billboard;
+			} catch (Exception e) {
+				JOptionPane.showMessageDialog(null, "Invalid XML format!");
+			}
+		}
+		return billboard;
+	}
+
+	/**
+	 * Add XML in the billboard.
+	 * @return the billboard to be edited
+	 * @throws IOException                  Signals that an I/O exception has
+	 *                                      occurred.
+	 * @throws ParserConfigurationException the parser configuration exception
+	 * @throws SAXException                 the SAX exception
+	 */
+	public Billboard addXml(Document doc) throws IOException, ParserConfigurationException, SAXException {
+		jrbBase64.setSelected(true);
+		lblSelectImage.setVisible(true);
+		Billboard billboard = new Billboard();
+		tfBlbdName.setText("");
+
+		doc.getDocumentElement().normalize();
+		String background = doc.getDocumentElement().getAttribute("background");
+		if (background != null && !background.isEmpty()) {
+			pnlBackground.setBackground(Color.decode(background));
+		}
+		NodeList nodeList = doc.getDocumentElement().getChildNodes();
+		for (int i = 0; i < nodeList.getLength(); i++) {
+			Node node = nodeList.item(i);
+			// If <message> attribute is present.
+			if (node.getNodeName().equals("message")) {
+				tfMsgText.setText(node.getTextContent());
+				Node color = node.getAttributes().getNamedItem("colour");
+				if (color != null) {
+					pnlMsgColour.setBackground(Color.decode(color.getTextContent()));
+				}
+			}// If <information> attribute is present.
+			else if (node.getNodeName().equals("information")) {
+				tfInfoText.setText(node.getTextContent());
+				Node color = node.getAttributes().getNamedItem("colour");
+				if (color != null) {
+					pnlInfoColour.setBackground(Color.decode(color.getTextContent()));
+				}
+			}// If <picture> attribute is present.
+			else if (node.getNodeName().equals("picture")) {
+				Node url = node.getAttributes().getNamedItem("url");
+				Node data = node.getAttributes().getNamedItem("data");
+				if (url != null && data == null) {
+					URL picURL = new URL(url.getTextContent());
+
+					tfPicURL.setText(String.valueOf(picURL));
+					tfPicURL.setVisible(true);
+					jrbURL.setSelected(true);
+
+				} else if (data != null && url == null) {
+
+					BufferedImage bi = ImageIO.read(
+							new ByteArrayInputStream(imgData = Base64.getDecoder().decode(data.getTextContent())));
+					Image image = bi.getScaledInstance(imgWidth, imgHeight, Image.SCALE_SMOOTH);
+					lblSelectImage.setIcon(new ImageIcon(image));
+					lblSelectImage.setText(null);
+					jrbBase64.setSelected(true);
+				}
+			}
+		}
+		int add = JOptionPane.showConfirmDialog(this, addBillboardPanel, "Add Billboard",
+				JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+
+		// If user clicked OK.
+		if (add == 0) {
+			String blbdName = tfBlbdName.getText().trim();
+			if (blbdName.isEmpty()) {
+				GUI.displayError("Enter billboard name!");
+				return null;
+			}
+			try {
+				Document doc1 = createXML();
+				setTempXML(doc1);  			// test
+				billboard.setXmlData(Files.readAllBytes(Paths.get("temp/billboard.xml")));
+				billboard.setName(blbdName);
+			} catch (Exception e) {
+				System.out.println(e.getMessage());;
+			}
+
+		}
+		disableButtons();
+		tfBlbdName.setText("");
+		tfMsgText.setText("");
+		tfInfoText.setText("");
+		setDefaultImage();
+		jrbBase64.setSelected(true);
+		return billboard;
+	}
+
+
+//----------------------------------------------------------------------------------------------------------------------
 	/**
 	 * Adds the new {@link common.Billboard}.
 	 *
@@ -784,6 +937,22 @@ public class BillboardsPanel extends JPanel {
 	 */
 	public  JButton getBtnDEleteImage(){
 		return btnDeleteImage;
+	}
+
+	/**
+	 * Gets the button importXML .
+	 * @return the button importXML
+	 */
+	public  JButton getBtnImportXml(){
+		return btnImportXml;
+	}
+
+	/**
+	 * Gets the button exporttXML .
+	 * @return the button exportXML
+	 */
+	public  JButton getBtnExportXml(){
+		return btnExportXml;
 	}
 
 }

@@ -55,6 +55,9 @@ public class Controller implements Observable {
 	/** The row selected by the user in the User Panel. */
 	private int rowSelectedSchedulePanel;
 
+	/** Controle the action of add billboards from import XML button. */
+	private boolean importXML = false;
+
 	/**
 	 * Instantiates a new controller.
 	 *
@@ -97,7 +100,7 @@ public class Controller implements Observable {
 			rowSelectedUserPanel = -1;
 			showUsers();
 
-		});			    		// Added by Fernando
+		});
 		gui.getUsersPanel().getBtnEditUser().addActionListener(e -> editUser(rowSelectedUserPanel));				    		// Added by Fernando
 		gui.getUsersPanel().getBtnLogout().addActionListener(e -> logout());
 		gui.getUsersPanel().getBtnAddUser().addActionListener(e -> addUser());
@@ -107,8 +110,7 @@ public class Controller implements Observable {
 				rowSelectedUserPanel = gui.getUsersPanel().getTblAllUsers().getSelectedRow();
 				gui.getUsersPanel().getBtnEditUser().setEnabled(true);
 				gui.getUsersPanel().getBtnDeleteUser().setEnabled(true);
-				System.out.println("Row number: " + rowSelectedUserPanel);
-
+				//System.out.println("Row number: " + rowSelectedUserPanel);
 			}
 		});
 		// Billboard Panel
@@ -119,7 +121,7 @@ public class Controller implements Observable {
 			preview(rowSelectedBillboardPanel);
 			rowSelectedBillboardPanel = -1;
 			showBillboards();
-		});			// Added by Fernando
+		});
 		gui.getBillboardPanel().getTblAllBillboards().addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent me) {
@@ -127,6 +129,7 @@ public class Controller implements Observable {
 				gui.getBillboardPanel().getBtnEditBillboard().setEnabled(true);		// Test
 				gui.getBillboardPanel().getBtnDeleteBillboard().setEnabled(true);	// Test
 				gui.getBillboardPanel().getBtnPreviewBillboard().setEnabled(true);	// Test
+				gui.getBillboardPanel().getBtnExportXml().setEnabled(true);			// Test
 				//System.out.println("Row number: " + rowSelectedBillboardPanel);
 			}
 		});
@@ -156,6 +159,22 @@ public class Controller implements Observable {
 				} catch (IOException e2) {
 					GUI.displayError(e2.getMessage());
 				}
+		});
+		gui.getBillboardPanel().getBtnImportXml().addActionListener(e-> {
+			try {
+				importXML = true;
+				addBillboard();
+			} catch (Exception e1) {
+				System.out.println(e1.getMessage());
+			}
+		});
+		gui.getBillboardPanel().getBtnExportXml().addActionListener(e -> {
+			try {
+				gui.getBillboardPanel().exportXML(rowSelectedBillboardPanel);
+			} catch (Exception e2) {
+				GUI.displayError(("Export XML Failed: " + e2.getMessage()));
+			}
+
 		});
 		inputCommandHandler.addObserver(this);
 	}
@@ -240,7 +259,13 @@ public class Controller implements Observable {
 	 */
 	private void addBillboard() {
 		try {
-			Billboard billboard = gui.getBillboardPanel().addBuilboard();
+			Billboard billboard = null;
+			if (importXML) {
+				billboard = gui.getBillboardPanel().importXML();
+			}
+			else {
+				billboard = gui.getBillboardPanel().addBuilboard();
+			}
 			if (billboard != null) {
 				outputCommandHandler.addBillboard(billboard, inputCommandHandler.getSessionToken());
 				// Update Billboard Panel
@@ -249,9 +274,13 @@ public class Controller implements Observable {
 				} catch (Exception exc) {
 					GUI.displayError(exc.getMessage());
 				}
+
 			}
 		} catch (SQLException | IOException e) {
 			GUI.displayError(e.getMessage());
+		}
+		finally {
+			importXML = false;
 		}
 	}
 

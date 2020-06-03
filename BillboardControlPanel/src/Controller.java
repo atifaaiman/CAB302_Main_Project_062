@@ -30,10 +30,10 @@ import static common.Message.*;
 public class Controller implements Observable {
 
 	/** The input command handler. */
-	private InputCommandHandler inputCommandHandler;
+	private static InputCommandHandler inputCommandHandler;
 
 	/** The output command handler. */
-	private OutputCommandHandler outputCommandHandler;
+	private static OutputCommandHandler outputCommandHandler;
 
 	/** The GUI reference (or View). */
 	private GUI gui;
@@ -55,11 +55,12 @@ public class Controller implements Observable {
 
 	/** The row selected by the user in the User Panel. */
 	private int rowSelectedSchedulePanel = -1;
+	private boolean wasAddClicked = false;
 
 	/** Controle the action of add billboards from import XML button. */
 	private boolean importXML = false;
 
-	// User name
+	/** Store username from user */
 	public static String userName;
 
 	/**
@@ -88,22 +89,30 @@ public class Controller implements Observable {
 	 * Adds the listeners.
 	 */
 	private void addListeners() {
+		// Login Logout
 		gui.getLoginPanel().getBtnLogin().addActionListener(e -> login());
+		gui.getSchedulesPanel().getBtnLogout().addActionListener(e -> logout());
 		gui.getLoginPanel().getBtnClose().addActionListener(e -> closeLogin() );
 
 		// Schedule
-		gui.getSchedulesPanel().getBtnAddSchedule().addActionListener(e -> addSchedule());
-		gui.getSchedulesPanel().getBtnLogout().addActionListener(e -> logout());
-		gui.getSchedulesPanel().getBtnDeleteSchedule().addActionListener(e-> deleteSchedule(rowSelectedBillboardPanel));
+		gui.getSchedulesPanel().getBtnAddSchedule().addActionListener(e -> {
+			updateScheduleList();
+			addSchedule();
+		});
+		gui.getSchedulesPanel().getBtnDeleteSchedule().addActionListener(e-> deleteSchedule(rowSelectedSchedulePanel));
 		gui.getSchedulesPanel().getTblAllSchedules().addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent me) {
 				rowSelectedSchedulePanel = gui.getSchedulesPanel().getTblAllSchedules().getSelectedRow();
-				System.out.println("Row number: " + rowSelectedSchedulePanel);
+				gui.getSchedulesPanel().getBtnDeleteSchedule().setEnabled(true);
+				//System.out.println("Row number: " + rowSelectedSchedulePanel);
 			}
 		});
 		gui.getSchedulesPanel().getBtnShowSchedule().addActionListener(e-> {
-			showSchedules();
+			updateScheduleList();
+			gui.getSchedulesPanel().getBtnShowSchedule().setText("Update list");
+			gui.getSchedulesPanel().getBtnWeeksSchedules().setEnabled(true);
+			gui.getSchedulesPanel().getBtnAddSchedule().setEnabled(true);
 		});
 
 		// User Panel
@@ -344,19 +353,18 @@ public class Controller implements Observable {
 	 * Adds the schedule.
 	 */
 	private void addSchedule() {
+		List<Schedule> scheds = gui.getSchedulesPanel().addSchedule();
 		try {
-			List<Schedule> scheds = gui.getSchedulesPanel().addSchedule();
 			if (scheds != null) {
-				System.out.println("List size: " + scheds.size());
 				for (int i = 0 ; i < scheds.size(); i++){
 					Schedule schedule = scheds.get(i);
 					outputCommandHandler.addSchedule(schedule, inputCommandHandler.getSessionToken());
-					showSchedules();
 				}
 			}
 		} catch (Exception e) {
 			GUI.displayError(e.getMessage());
 		}
+		updateScheduleList();
 	}
 
 	/**
@@ -365,11 +373,10 @@ public class Controller implements Observable {
 	 */
 	private void deleteSchedule(int row) {
 		if(rowSelectedSchedulePanel != -1){
-			int scheduleId = (int) gui.getSchedulesPanel().getTblAllSchedules().getValueAt(row, 0);
+			int scheduleId = Integer.parseInt(String.valueOf(gui.getSchedulesPanel().getTblAllSchedules().getValueAt(row, 0)));
 			Schedule schedule = new Schedule();
 			schedule.setId(scheduleId);
 			try {
-				System.out.println("Controller.java - Line 372: deleteSchedule();" );
 				outputCommandHandler.deleteSchedule(schedule, inputCommandHandler.getSessionToken());
 				rowSelectedSchedulePanel = -1;
 				// Update user list
@@ -385,15 +392,18 @@ public class Controller implements Observable {
 				GUI.displayError(e.getMessage());
 			}
 		}
+		updateScheduleList();
+		gui.getSchedulesPanel().getBtnDeleteSchedule().setEnabled(false);
 	}
 
 	/**
 	 * Show the users.
 	 */
-	private void showSchedules() {
+	public static void updateScheduleList() {
 		try {
-			outputCommandHandler.allSchedules(inputCommandHandler.getSessionToken());
 			outputCommandHandler.allBillboards(inputCommandHandler.getSessionToken());
+			outputCommandHandler.allSchedules(inputCommandHandler.getSessionToken());
+
 		} catch (IOException exc) {
 			GUI.displayError(exc.getMessage());
 		}

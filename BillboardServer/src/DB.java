@@ -1,3 +1,8 @@
+import common.Billboard;
+import common.Schedule;
+import common.User;
+
+import javax.sql.rowset.serial.SerialBlob;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -5,27 +10,12 @@ import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.sql.Timestamp;
+import java.sql.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
-
-import javax.naming.NamingEnumeration;
-import javax.sql.rowset.serial.SerialBlob;
-
-import common.Billboard;
-import common.Schedule;
-import common.User;
-import org.mariadb.jdbc.internal.util.scheduler.SchedulerServiceProviderHolder;
-import org.w3c.dom.ls.LSOutput;
 
 /**
  * The Class DB. Encapsulates database MariaDB connection.
@@ -290,29 +280,11 @@ public class DB {
 	 * @throws SQLException the SQL exception
 	 */
 	public static void addSchedule(Schedule sched) throws SQLException {
-		System.out.println("Schedule date: " + sched.getDateTime());
-		System.out.println("Schedule duration: " + sched.getDuration());
-		System.out.println("Schedule repeat: " + sched.getRepeat());
 		System.out.println("Schedule name_billboard: " + sched.getIdBillboard());
 		System.out.println("Schedule date_time_start: " + sched.getDateTimeStart());
 		System.out.println("Schedule date_time_finish: " + sched.getDateTimeFinish());
 		System.out.println("Schedule created_by: " + sched.getScheduleCreatedBy());
 
-//		try (Connection conn = getConnection();
-//
-//				PreparedStatement stmt = conn.prepareStatement(
-//						//"insert into schedule (date_time, duration, `repeat`, name_billboard) value(?,?,?,?)")) {		// Old code
-//			"insert into schedule (date_time, duration, `repeat`, name_billboard, date_time_start," +
-//					"date_time_finish, schedule_create_by) value(?,?,?,?,?,?,?)")) {									// New code
-//			stmt.setTimestamp(1, Timestamp.valueOf(sched.getDateTime()));
-//			stmt.setInt      (2, sched.getDuration());
-//			stmt.setString   (3, sched.getRepeat());
-//			stmt.setString   (4, sched.getIdBillboard());
-//			stmt.setString   (5, sched.getDateTimeStart());												// New code
-//			stmt.setString   (6, sched.getDateTimeFinish());												// New code
-//			stmt.setString   (7, sched.getScheduleCreatedBy());											// New code
-//			stmt.executeUpdate();
-//		}
 
 		try (Connection conn = getConnection();
 			 PreparedStatement stmt = conn.prepareStatement(
@@ -328,7 +300,6 @@ public class DB {
 
 	/**
 	 * Delete schedule.
-	 *
 	 * @param idSchedule the id schedule
 	 * @throws SQLException the SQL exception
 	 */
@@ -347,25 +318,10 @@ public class DB {
 	 * @return the schedules
 	 * @throws SQLException the SQL exception
 	 */
-//	public static List<Schedule> getSchedules() throws SQLException {
-//		List<Schedule> schedules = new ArrayList<>();
-//		try (Connection conn = getConnection(); Statement stmt = conn.createStatement()) {
-//			try (ResultSet rs = stmt.executeQuery("select * from schedule")) {
-//				while (rs.next()) {
-//					schedules.add(new Schedule(rs.getInt(1), rs.getTimestamp(2).toLocalDateTime(),
-//							rs.getInt(3), rs.getString(4), rs.getString(5),
-//							rs.getString(6),rs.getString(7),rs.getString(8),  // Added  by Fernando
-//							rs.getString(9)));														 // Added by Fernando
-//				}
-//			}
-//		}
-//		return schedules;
-//	}
-
 	public static List<Schedule> getSchedules() throws SQLException {
 		List<Schedule> schedules = new ArrayList<>();
 		try (Connection conn = getConnection(); Statement stmt = conn.createStatement()) {
-			try (ResultSet rs = stmt.executeQuery("select * from schedule")) {
+			try (ResultSet rs = stmt.executeQuery("select * from schedule order by date_time_start")) {
 				while (rs.next()) {
 					Schedule schedule = new Schedule();
 					schedule.setId(rs.getInt(1));

@@ -1,6 +1,7 @@
 package common;
 
-import static junit.framework.Assert.assertEquals;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.ArrayList;
 import java.util.List;

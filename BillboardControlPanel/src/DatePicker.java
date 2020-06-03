@@ -81,41 +81,15 @@ class DatePicker {
         cal.set(year, month, 1);
         int dayOfWeek = cal.get(java.util.Calendar.DAY_OF_WEEK);
         int daysInMonth = cal.getActualMaximum(java.util.Calendar.DAY_OF_MONTH);
+
         for (int x = 6 + dayOfWeek, day = 1; day <= daysInMonth; x++, day++){
             button[x].setText("" + day);
-//            System.out.println(button[x].getText());
-//            try{
-//                int intDayNoFormatted = Integer.parseInt(button[x].getText());
-//                String dayFormatted = String.format("%02d",intDayNoFormatted);
-//                String monthFormatted = String.format("%02d", month);
-//                String yearFormatted = String.format("%d", year);
-//                String date = dayFormatted+"/"+monthFormatted+"/"+yearFormatted+" 23:59:59";
-//                System.out.println("Day: " + date);
-//                SimpleDateFormat formatter = new SimpleDateFormat("dd/M/yyyy HH:mm:ss");
-//                Date dateCalender = formatter.parse(date);
-//                System.out.println(dateCalender);
-//                Date currentDate = new Date();
-//                compare = (dateCalender.compareTo(currentDate));
-//                System.out.println("Compare: " + compare);
-//            }catch (Exception e){
-//                System.out.println(e);
-//            }
+
         }
         l.setText(sdf.format(cal.getTime()));
         d.setTitle("Select Date");
     }
 
-
-
-    public String setPickedDate() {
-        if (day.equals(""))
-            return day;
-        java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat(
-                "dd-MM-yyyy");
-        java.util.Calendar cal = java.util.Calendar.getInstance();
-        cal.set(year, month, Integer.parseInt(day));
-        return sdf.format(cal.getTime());
-    }
 
     public String getDate(){
         return date;

@@ -62,7 +62,6 @@ public class OutputCommandHandler {
 
 	/**
 	 * Adds the schedule.
-	 *
 	 * @param sched the sched
 	 * @param token the token
 	 * @throws NoSuchAlgorithmException the no such algorithm exception
@@ -75,8 +74,20 @@ public class OutputCommandHandler {
 	}
 
 	/**
+	 * delete the schedule.
+	 * @param sched the sched
+	 * @param token the token
+	 * @throws NoSuchAlgorithmException the no such algorithm exception
+	 * @throws IOException              Signals that an I/O exception has occurred.
+	 */
+	public void daddSchedule(Schedule sched, String token) throws NoSuchAlgorithmException, IOException {
+		oos.writeObject(MessageBuilder.build(null, null, DELETE_SCHEDULE, null, null, token,
+				null, null, null, sched, null,
+				null, null));
+	}
+
+	/**
 	 * Adds the billboard.
-	 *
 	 * @param billboard the billboard
 	 * @param token     the token
 	 * @throws IOException Signals that an I/O exception has occurred.
@@ -117,6 +128,19 @@ public class OutputCommandHandler {
 	public void deleteUser(User user, String token) throws NoSuchAlgorithmException, IOException {
 		oos.writeObject(MessageBuilder.build(null, null, DELETE_USER, null, null, token,
 				null, null, user, null, null,
+				null, null));
+	}
+
+	/**
+	 * Deletes schedule.
+	 * @param schedule  the user
+	 * @param token the token
+	 * @throws NoSuchAlgorithmException the no such algorithm exception
+	 * @throws IOException              Signals that an I/O exception has occurred.
+	 */
+	public void deleteSchedule(Schedule schedule, String token) throws NoSuchAlgorithmException, IOException {
+		oos.writeObject(MessageBuilder.build(null, null, DELETE_SCHEDULE, null, null, token,
+				null, null, null, schedule, null,
 				null, null));
 	}
 

@@ -68,6 +68,7 @@ public class GUI extends JFrame {
 
 	/* The name. */
 	private String name;
+	
 
 	/**
 	* Instantiates a new gui.
@@ -80,7 +81,6 @@ public class GUI extends JFrame {
 		this.name = "billboard";
 
 		mainPnl.setLayout(new GridBagLayout());
-
 
 		addKeyListener(new KeyAdapter() {
 			@Override
@@ -124,7 +124,7 @@ public class GUI extends JFrame {
 		new Timer(SERVER_CONNECTION_PERIOD, e -> {
 			boolean isConnected = connectToServer();
 			//System.out.println("Connection: " + isConnected);
-			System.out.println("Getting billboard from the serve...");													// Debug added by Fernando
+			//System.out.println("Getting billboard from the serve...");													// Debug added by Fernando
 
 		}).start();
 	}
@@ -133,7 +133,6 @@ public class GUI extends JFrame {
 	 * Connects to server.
 	 */
 	public boolean connectToServer() {
-
 		// Read network.props file to obtain host and port to connect to.
 		ReadPropsFile rpf = new ReadPropsFile();
 		String host = rpf.getHost();
@@ -160,6 +159,9 @@ public class GUI extends JFrame {
 				lblError.setText("Host found in " + NETWORK_PROPERTIES_FILENAME + " (" + host + ") is not valid.");
 			}
 			catch (IOException e) {
+				picLbl.setIcon(null);
+				msgLbl.setText("");
+				infLbl.setText("");
 				System.out.println("Exception: " + e.getMessage());
 				// If server is not connected show "./billboard03.xml"
 				try {
@@ -183,7 +185,11 @@ public class GUI extends JFrame {
 	 */
 	public void updateBillboard(byte[] file, String filename) {
 		//System.out.println("File: " + file);
-		// If there is  Billboard scheduled 																			// Added by Fernando
+		// If there is  Billboard scheduled
+		msgLbl.setText("");
+		infLbl.setText("");
+		picLbl.setIcon(null);
+		// Added by Fernando
 		if (file != null){
 			// Status message from billboard retrieved from the serve:
 			System.out.println("Billboard retrieved from the server ");
@@ -206,6 +212,7 @@ public class GUI extends JFrame {
 			// Status message from billboard retrieved from the serve:
 			System.out.println("No scheduled billboard ");
 			try {
+
 				Document doc = parseXML(Paths.get("./billboard02.xml"));
 				updateBillboard(doc);
 			} catch (Exception e1){
@@ -232,11 +239,6 @@ public class GUI extends JFrame {
 		doc.getDocumentElement().normalize();
 		return doc;
 	}
-
-	// @Override
-	// public MenuBar getMenuBar() {
-	// return super.getMenuBar();
-	// }
 
 	/**
 	 * Updates billboard.
@@ -536,7 +538,7 @@ public class GUI extends JFrame {
 		int newSize = (int) (curFont.getSize() * widthScale);
 		int componentHeight = (int) msgLbl.getPreferredSize().getHeight();
 		int newFontSize = Math.min(newSize, componentHeight);
-		return newFontSize;
+		return newFontSize-10;
 	}
 
 

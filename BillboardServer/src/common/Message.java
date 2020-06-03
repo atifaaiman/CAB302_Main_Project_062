@@ -62,10 +62,12 @@ public interface Message extends Serializable {
 	 * Used for testing purpose.*/
 	public static final int TEST_COMMAND = 17;
 
-
-	// ADD BY FERNANDO  *********************************************************************
 	/** The Constant BILLBOARD_EXISTS */
 	public static final int FAILED_BILLBOARD_EXISTS = 18;  // 9 FOR TEST BUT MUT BE 18
+
+	/** The Constant DELETE_SCHEDULE. */
+	public static final int DELETE_SCHEDULE = 19;
+
 
 	/**
 	 * Command to (or from) the server. For example, if it is LOGIN, then server

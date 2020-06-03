@@ -1,9 +1,15 @@
 import java.awt.*;
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
+import javax.sound.midi.Soundbank;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 
@@ -18,10 +24,13 @@ public class SchedulesPanel extends JPanel {
 	/** The Constant serialVersionUID. */
 	private static final long serialVersionUID = 1L;
 
+	// Shedule list
+	private List<Schedule> schedules;
+
 	/** Main schedules panel components. */
 	private DefaultTableModel tblMdlAllSchedules = new DefaultTableModel(
-			new String[] { "Schedule Date", "Schedule Time","Duration",
-					"Billboard Name", "User Name", "Creation Date"  }, 0) {
+			new String[] { "Schedule id", "Billboard name","Start date-time", "Finish date-time", "Creator",
+					"Create date"}, 0) {
 		private static final long serialVersionUID = 1L;
 		@Override
 		public boolean isCellEditable(int row, int column) {
@@ -38,48 +47,69 @@ public class SchedulesPanel extends JPanel {
 
 	/** Components for Add Schedule Panel */
 	private String[] hour = {
-			"00","01","02","03", "04","05","06","07","08", "09","10", "11",
+			"","00","01","02","03", "04","05","06","07","08", "09","10", "11",
 			"12","13","14","15","16","17","18","19","20","21","22","23"
 	};
 	private String[] minutes = {
-			"00","01","02","03","04","05","06","07","08", "09",
+			"","00","01","02","03","04","05","06","07","08", "09",
 			"10","11","12","13","14","15","16","17","18","19",
 			"20","21","22","23","24","25","26","27", "28","29",
 			"30","31","32","33","34", "35","36","37","38","39",
 			"40","41","42","43","44","45","46","47","48","49",
 			"50", "51","52","53","54","55","56","57","58","59"};
+	private String[] recurEveryMinutes = {
+			"02","03","04","05","06","07","08", "09",
+			"10","11","12","13","14","15","16","17","18","19",
+			"20","21","22","23","24","25","26","27", "28","29",
+			"30","31","32","33","34", "35","36","37","38","39",
+			"40","41","42","43","44","45","46","47","48","49",
+			"50", "51","52","53","54","55","56","57","58","59"};
+	private String[] recurDurationMinutes = {
+			"01","02","03","04","05","06","07","08", "09",
+			"10","11","12","13","14","15","16","17","18","19",
+			"20","21","22","23","24","25","26","27", "28","29",
+			"30","31","32","33","34", "35","36","37","38","39",
+			"40","41","42","43","44","45","46","47","48","49",
+			"50", "51","52","53","54","55","56","57","58","59"};
+
 	private JComboBox<String> jcbBillboards 			= new JComboBox<>(); 											// Drop-down menu for the created billboards
 	private JPanel pnlAddSchedule 						= new JPanel(); 												// Window create schedules
 	private JTextField tfDay 							= new JTextField(5);
 	private JTextField tfHour 							= new JTextField(5);
 	private JTextField tfMinute							= new JTextField(5);
 	private JTextField tfDurationOnce 					= new JTextField(5);
-	private JTextField tfDurationRecur 					= new JTextField(5);
-	private JTextField tfDateStartOnce 					= new JTextField(7);
-	private JTextField tfDateStartRecur 				= new JTextField(7);
-	private JTextField tfDateFinishOnce 				= new JTextField(7);
-	private JTextField tfDateFinishRecur 				= new JTextField(7);
-	private JTextField tfMinutesRecur  				    = new JTextField(5);
-	private final JRadioButton jrbOnce 					= new JRadioButton("Once", true);
-	private final JRadioButton jrbRecur 				= new JRadioButton("Recur");
-	private JComboBox<String> jcbRepeat 				= new JComboBox<>(new String[] { "Day","Hour","Min" });
-	private JComboBox<String> jcbHourOnce 				= new JComboBox<>(hour);
-	private JComboBox<String> jcbHourRecur 				= new JComboBox<>(hour);
-	private JComboBox<String> jcbMinuteOnce 			= new JComboBox<>(minutes);
-	private JComboBox<String> jcbMinuteRecur 			= new JComboBox<>(minutes);
-	private String [] minutesRecurrence ={"0","1"};
-	private JComboBox<String> jcbMinutesRecurrence 		= new JComboBox<>(minutesRecurrence);
+	private JTextField tfDateStar						= new JTextField(7);
+	private JTextField tfDateFinish 					= new JTextField(7);
+	private final JRadioButton jrbRecurNo 				= new JRadioButton("No Recur");
+	private final JRadioButton jrbRecurDay 				= new JRadioButton("Every Day");
+	private final JRadioButton jrbRecurHour 			= new JRadioButton("Every Hour");
+	private final JRadioButton jrbRecurMinutes 			= new JRadioButton("Every Minutes");
+	private JButton btnSelectStartDate 					= new JButton("Start date");
+	private JButton btnSelectFinishDate 				= new JButton("Finish date");
+	private JComboBox<String> jcbHourStart 				= new JComboBox<>(hour);
+	private JComboBox<String> jcbHourFinish 			= new JComboBox<>(hour);
+	private JComboBox<String> jcbMinuteStart 			= new JComboBox<>(minutes);
+	private JComboBox<String> jcbMinuteFinish 			= new JComboBox<>(minutes);
+	private JComboBox<String> jcbRecurDurationMinutes 	= new JComboBox<>(recurDurationMinutes);
+	private JComboBox<String> jcbEveryMinutes 			= new JComboBox<>(recurEveryMinutes);
 
-	//NEW CODE
+	//Use to align components on the screen
 	private JCheckBox Hour_ChkBox 						= new JCheckBox("Hour");
-	private JPanel pnlGap1 = new JPanel();
-	private JPanel pnlGap2 = new JPanel();
-	private JPanel pnlGap3 = new JPanel();
-	private JPanel pnlGap4 = new JPanel();
-	private JPanel pnlGap5 = new JPanel();
-	private JPanel pnlGap6 = new JPanel();
-
-
+	private JPanel pnlGap1 								= new JPanel();
+	private JPanel pnlGap2 								= new JPanel();
+	private JPanel pnlGap3 								= new JPanel();
+	private JPanel pnlGap4 								= new JPanel();
+	private JPanel pnlGap5								= new JPanel();
+	private JPanel pnlGap6 								= new JPanel();
+	private JPanel pnlGap7 								= new JPanel();
+	private JPanel pnlGap8 								= new JPanel();
+	private JPanel pnlGap9 								= new JPanel();
+	private JPanel pnlGap10 							= new JPanel();
+	private JPanel pnlGap11 							= new JPanel();
+	private JPanel pnlGap12 							= new JPanel();
+	private JPanel pnlGap13 							= new JPanel();
+	private JPanel pnlGap14 							= new JPanel();
+	private JPanel pnlGap15 							= new JPanel();
 
 	/**
 	 * Instantiates a new schedules panel.
@@ -87,6 +117,8 @@ public class SchedulesPanel extends JPanel {
 	public SchedulesPanel() {
 		initGUIComponents();
 	}
+
+
 
 	/**
 	 * Inits the GUI components.
@@ -130,188 +162,139 @@ public class SchedulesPanel extends JPanel {
 		 */
 		//--------------------------------------------------------------------------------------------------------------
 		Box mainPanel = Box.createVerticalBox();
-
 		JPanel panel1 = new JPanel();
-		panel1.setLayout(new FlowLayout(FlowLayout.LEFT));
-		JPanel panel11 = new JPanel();
-		panel11.setLayout(new FlowLayout(FlowLayout.LEFT,10,10));
-		panel11.add(new JLabel("Billboard Name:"));
-		panel11.add(jcbBillboards);
-		jcbBillboards.setMinimumSize(new Dimension(100,20));
-		JPanel panel12 = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-		//panel12.add(tfBlbdName);
-		//panel12.add(pnlBackground);
-		JPanel panel13= new JPanel(new FlowLayout(FlowLayout.RIGHT));
-		//panel13.add(btnBackground);
+			panel1.setLayout(new FlowLayout(FlowLayout.LEFT));
+			JPanel panel11 = new JPanel();
+			panel11.setLayout(new FlowLayout(FlowLayout.LEFT,10,20));
+			panel11.add(new JLabel("Billboard Name:"));
+			panel11.add(jcbBillboards);
+			jcbBillboards.setMinimumSize(new Dimension(100,20));
 		panel1.add(panel11);
-		panel1.add(panel12);
-		panel1.add(panel13);
 
-		JPanel panel2 = new JPanel();
-		JPanel panel21 = new JPanel();
-		panel21.setLayout(new FlowLayout(FlowLayout.LEFT, 50, 10));
-		//panel21.add(new JLabel("Message:"));
-		JPanel panel22 = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-		//panel22.add(tfMsgText);
-		//panel22.add(pnlMsgColour);
-		JPanel panel23= new JPanel(new FlowLayout(FlowLayout.RIGHT));
-		//panel23.add(btnMsgColour);
-		panel2.add(panel21);
-		panel2.add(panel22);
-		panel2.add(panel23);
-
-
-		JPanel panel3 = new JPanel();
-		JPanel panel31 = new JPanel();
-		panel31.setLayout(new FlowLayout(FlowLayout.LEFT, 40, 10));
-		//panel31.add(new JLabel("Information:"));
-		JPanel panel32 = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-		//panel32.add(tfInfoText);
-		//panel32.add(pnlInfoColour);
-		JPanel panel33= new JPanel(new FlowLayout(FlowLayout.RIGHT));
-		//panel33.add(btnInfoColour);
-		panel3.add(panel31);
-		panel3.add(panel32);
-		panel3.add(panel33);
-
-		// Once schedule
+		// Once panel
 		Box onceBox = Box.createVerticalBox();
 		onceBox.setBorder(BorderFactory.createDashedBorder(Color.darkGray));
-		onceBox.setBorder(BorderFactory.createTitledBorder("Once:"));
+		onceBox.setBorder(BorderFactory.createTitledBorder("Once: "));
+		JPanel panel2 = new JPanel();
+			panel2.setLayout(new FlowLayout(FlowLayout.LEFT));
+			panel2.add(pnlGap1);
+		    panel2.add(btnSelectStartDate);
+			panel2.add(tfDateStar);
+			panel2.add(pnlGap2);
+			panel2.add(btnSelectFinishDate);
+			panel2.add(tfDateFinish);
+		onceBox.add(panel2);
+		JPanel panel3 = new JPanel();
+			panel3.setLayout(new FlowLayout(FlowLayout.LEFT));
+			panel3.add(pnlGap5);
+			panel3.add(new JLabel("Time start:"));
+			panel3.add(pnlGap6);
+			panel3.add(jcbHourStart);
+			panel3.add(new JLabel("hours"));
+			panel3.add(pnlGap7);
+			panel3.add(jcbMinuteStart);
+			panel3.add(pnlGap4);
+			panel3.add(new JLabel("minutes"));
 		JPanel panel4 = new JPanel();
-			panel4.setLayout(new FlowLayout(FlowLayout.LEFT));
-			panel4.add(jrbOnce);
-			panel4.add(pnlGap1);
-			panel4.add(new JLabel("Date:"));
+		panel4.setLayout(new FlowLayout(FlowLayout.LEFT));
+			panel4.add(pnlGap8);
+			panel4.add(new JLabel("Time finish:"));
 			panel4.add(pnlGap3);
-			panel4.add(tfDateStartOnce);
-			JLabel dateFinishOnce = new JLabel("Date Finish:");
-			panel4.add(dateFinishOnce);
-			panel4.add(tfDateFinishOnce);
-			panel4.add(new JLabel("Hour:"));
-			panel4.add(jcbHourOnce);
-			panel4.add(new JLabel("Minute:"));
-			panel4.add(jcbMinuteOnce);
-			panel4.add(new JLabel("Duration in minutes:"));
-			panel4.add(tfDurationOnce);
-		//panel4.add(jrbBase64);
+			panel4.add(jcbHourFinish);
+			panel4.add(new JLabel("hours"));
+			panel4.add(pnlGap9);
+			panel4.add(jcbMinuteFinish);
+			panel4.add(pnlGap12);
+			panel4.add(new JLabel("minutes:"));
+		onceBox.add(panel3);
 		onceBox.add(panel4);
-		//panel4.add(pnlGap);
-		//panel4.add(lblSelectImage);
-		//panel4.add(pnlPicture);
-		//panel4.add(btnAddImage);
-		//panel4.add(btnDeleteImage);
 
-		// Recur schedule
+		// Recur panel
 		Box recurBox = Box.createVerticalBox();
 		recurBox.setBorder(BorderFactory.createDashedBorder(Color.darkGray));
-		recurBox.setBorder(BorderFactory.createTitledBorder("Recur:"));
+		recurBox.setBorder(BorderFactory.createTitledBorder("Recur: "));
 		JPanel panel5 = new JPanel();
-			panel5.setLayout(new FlowLayout(FlowLayout.LEFT));
-			panel5.add(jrbRecur);
-			panel5.add(pnlGap2);
-			panel5.add(new JLabel("Date Start:"));
-			panel5.add(tfDateStartRecur);
-			JLabel dateFinishRecur = new JLabel("Date Finish:");
-			panel5.add(dateFinishRecur);
-			panel5.add(tfDateFinishRecur);
-			panel5.add(new JLabel("Hour:"));
-			panel5.add(jcbHourRecur);
-			panel5.add(new JLabel("Minute:"));
-			panel5.add(jcbMinuteRecur);
-			panel5.add(new JLabel("Duration in minutes:"));
-			panel5.add(tfDurationRecur);
-		recurBox.add(panel5);
-
+			panel5.setLayout(new FlowLayout(FlowLayout.CENTER, 20,30));
+			panel5.add(jrbRecurNo);
+			panel5.add(jrbRecurDay);
+			panel5.add(jrbRecurHour);
+			panel5.add(jrbRecurMinutes);
 		JPanel panel6 = new JPanel();
-		panel6.setLayout(new FlowLayout(FlowLayout.LEFT));
-		panel6.add(pnlGap4);
-		JLabel recurLabel = new JLabel("Recurrence:");
-		panel6.add(recurLabel);
-		panel6.add(jcbRepeat);
-		JLabel minutesRecur = new JLabel("Minutes to recur:");
-		panel6.add(minutesRecur);
-		panel6.add(jcbMinutesRecurrence);
-		recurBox.add(panel6);
-
-
+			panel6.setLayout(new FlowLayout(FlowLayout.LEFT));
+			panel6.add(pnlGap10);
+			JLabel jlbRecurFrequency =new JLabel("Recur every:");
+			panel6.add(jlbRecurFrequency);
+			panel6.add(pnlGap14);
+			panel6.add(jcbEveryMinutes);
+			JLabel jlbRecurFrequencyMinutes =new JLabel("minutes");
+			panel6.add(jlbRecurFrequencyMinutes);
 		JPanel panel7 = new JPanel();
-		panel7.setLayout(new FlowLayout(FlowLayout.RIGHT));
-		//panel6.add(btnPreview);
-
-		//setDefaultColors();
+			panel7.setLayout(new FlowLayout(FlowLayout.LEFT));
+			panel7.add(pnlGap11);
+			JLabel jlbRecurHour =new JLabel("Duration:");
+			panel7.add(jlbRecurHour);
+			panel7.add(pnlGap13);
+			panel7.add(jcbRecurDurationMinutes);
+			JLabel jlbRecurHourMinutes =new JLabel("minutes");
+			panel7.add(jlbRecurHourMinutes);
+		recurBox.add(panel5);
+		recurBox.add(panel6);
+		recurBox.add(panel7);
+		// Big Panels
 		mainPanel.add(panel1);
-		mainPanel.add(panel2);
-		mainPanel.add(panel3);
 		mainPanel.add(onceBox);
 		mainPanel.add(recurBox);
-		mainPanel.add(panel7);
+		// Main Panel
 		pnlAddSchedule.add(mainPanel);
 
 		//--------------------------------------------------------------------------------------------------------------
 		// Components setup
 		//--------------------------------------------------------------------------------------------------------------
-		pnlGap1.setPreferredSize	(new Dimension (8,10));
-		pnlGap3.setPreferredSize	(new Dimension (28,10));
-		pnlGap2.setPreferredSize	(new Dimension (5,10));
-		pnlGap4.setPreferredSize	(new Dimension (77,10));
-		tfDateFinishOnce.setEnabled(false);
-		dateFinishOnce.setForeground(Color.LIGHT_GRAY);
-		tfDateFinishOnce.setBackground(Color.LIGHT_GRAY);
-		//pnlInfoColour.setPreferredSize	(new Dimension (40,18));
-		//pnlMsgColour.setPreferredSize	(new Dimension (40,18));
-		//pnlBackground.setPreferredSize	(new Dimension (40,18));
+		// Components alignment
+		pnlGap1.setPreferredSize	(new Dimension (3,10));   // ok
+		pnlGap2.setPreferredSize	(new Dimension (30,10));  // ok
+		pnlGap3.setPreferredSize	(new Dimension (16,10));  // ok
+		pnlGap4.setPreferredSize	(new Dimension (0,10));   // ok
+		pnlGap5.setPreferredSize	(new Dimension (10,10));  // ok
+		pnlGap6.setPreferredSize	(new Dimension (23,10));  // ok
+		pnlGap7.setPreferredSize	(new Dimension (15,10));  // ok
+		pnlGap8.setPreferredSize	(new Dimension (10,10));  // ok
+		pnlGap9.setPreferredSize	(new Dimension (15,10));  // ok
+		pnlGap10.setPreferredSize	(new Dimension (10,10));  // ok
+		pnlGap11.setPreferredSize	(new Dimension (10,10));  // ok
+		pnlGap12.setPreferredSize	(new Dimension (0,10));   // ok
+		pnlGap13.setPreferredSize	(new Dimension (30,10));  // ok
+		pnlGap14.setPreferredSize	(new Dimension (14,10));  // ok
+		pnlGap15.setPreferredSize	(new Dimension (57,10));  // ok
+
+		// Recurrence buttons selection
 		ButtonGroup bg = new ButtonGroup();
-		bg.add(jrbOnce);
-		bg.add(jrbRecur);
-		//setDefaultImage();
-		//btnDeleteImage.addActionListener(e -> setDefaultImage());
-		//disableButtons();
+		bg.add(jrbRecurNo);
+		bg.add(jrbRecurDay);
+		bg.add(jrbRecurHour);
+		bg.add(jrbRecurMinutes);
 
-
-
-		//--------------------------------------------------------------------------------------------------------------
-		//pnlAddSchedule.setLayout(new BoxLayout(pnlAddSchedule, BoxLayout.Y_AXIS)); // Determines the orientation of the window
-//		pnlAddSchedule.setBackground(Color.LIGHT_GRAY); // NEW CODE, //Sets the background colour of the add schedule window
-//		pnlAddSchedule.add(new JLabel(" Billboard: ")); // Sets the tile of the select billboard combo box
-//		pnlAddSchedule.add(Box.createVerticalStrut(5)); // Whitespace between Select Billboard and ComboBox
-//		pnlAddSchedule.add(jcbBillboards);
-//		pnlAddSchedule.add(Box.createVerticalStrut(10));
-//		pnlAddSchedule.add(new JLabel("Schedule From: "));
-//		pnlAddSchedule.add(Box.createVerticalStrut(5));
-//		pnlAddSchedule.add(tfDay);
-//		pnlAddSchedule.add(Box.createVerticalStrut(20));
-//		pnlAddSchedule.add(new JLabel("Schedule Till: "));
-//		pnlAddSchedule.add(Box.createVerticalStrut(5));
-//		pnlAddSchedule.add(tfHour);
-//		pnlAddSchedule.add(Box.createVerticalStrut(15));
-//		pnlAddSchedule.add(Hour_ChkBox);
-//		pnlAddSchedule.add(Box.createVerticalStrut(15));
-//		pnlAddSchedule.add(new JLabel("Enter minute:"));
-//		pnlAddSchedule.add(Box.createVerticalStrut(5));
-//		pnlAddSchedule.add(tfMinute);
-//		pnlAddSchedule.add(Box.createVerticalStrut(15));
-//		pnlAddSchedule.add(new JLabel("Enter duration:"));
-//		pnlAddSchedule.add(Box.createVerticalStrut(5));
-//		pnlAddSchedule.add(tfDuration);
-//		pnlAddSchedule.add(Box.createVerticalStrut(15));
-//		pnlAddSchedule.add(new JLabel("Select repeat:"));
-//		pnlAddSchedule.add(Box.createVerticalStrut(5));
-//		pnlAddSchedule.add(jcbRepeat);
-//		pnlAddSchedule.add(Box.createVerticalStrut(15));
-		//*******************************************************
+		// Event listeners
+		btnSelectStartDate.addActionListener(e -> selectDateStart());
+		btnSelectFinishDate.addActionListener(e -> selectDateFinish());
 
 	}
 
-	public void setMinutesRecurrence(int minutes){
-		String[] minutesList = new String[minutes];
-		//if (tfDurationRecur > 1)
-		int count = 1;
-		for(int i = 0; i < minutes; i++){
-			minutesList[i] = Integer.toString(count);
-			count++;
-		}
-		minutesRecurrence = minutesList;
+	public void disableFrequency(){
+
+	}
+
+	public void selectDateStart(){
+		DatePicker dp = new DatePicker(this);
+
+		tfDateStar.setText(dp.getDate());
+		if(jrbRecurNo.isSelected())tfDateFinish.setText(tfDateStar.getText());
+		dp.displayDate();
+	}
+	public void selectDateFinish(){
+		DatePicker dp = new DatePicker(this);
+		tfDateFinish.setText(dp.getDate());
+
 	}
 
 	/**
@@ -319,84 +302,141 @@ public class SchedulesPanel extends JPanel {
 	 * @param schedules the schedules
 	 */
 	public void updateTable(List<Schedule> schedules) {
+		this.schedules = schedules;
 		tblMdlAllSchedules.setRowCount(0);
 		System.out.println("Schedule list size: " + schedules.size());
 		for (Schedule s : schedules) {
-			tblMdlAllSchedules.addRow(new String[] { s.getId() + "",
-					DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm").format(s.getDateTime()).toString(),
-					s.getDuration() + "", s.getRepeat(), s.getIdBillboard() + "" });
+			tblMdlAllSchedules.addRow(new String[] {String.valueOf(s.getId()), s.getIdBillboard(), s.getDateTimeStart(),
+					s.getDateTimeFinish(), s.getScheduleCreatedBy(), s.getScheduleCreateDate()});
 		}
 	}
 
 	/**
 	 * Adds the schedule.
-	 *
 	 * @return the schedule
 	 * @throws Exception the exception
 	 */
-	public Schedule addSchedule() throws Exception {
+	public List<Schedule> addSchedule() throws Exception {
 		Schedule schedule = null;
+		List<Schedule> list = new ArrayList<>();
+		// Current Date and time
+		int dayInt 	 =  java.util.Calendar.getInstance().get(Calendar.DAY_OF_MONTH);
+		int monthInt = java.util.Calendar.getInstance().get(java.util.Calendar.MONTH)+1;
+		int yearInt  = java.util.Calendar.getInstance().get(java.util.Calendar.YEAR);
+		int hourInt  = java.util.Calendar.getInstance().get(Calendar.HOUR);
+		int minInt  = java.util.Calendar.getInstance().get(Calendar.MINUTE);
+		String day   = String.format("%02d",dayInt);
+		String month = String.format("%02d",monthInt);
+		String year  = String.format("%d",yearInt);
+		String hour = String.format("%02d", hourInt);
+		String minute = String.format("%02d", minInt);
+		tfDateStar.setText(day+"/"+month+"/"+year);
+		tfDateFinish.setText(day+"/"+month+"/"+year);
+		System.out.println("hour:" +hour);
+
+		jrbRecurNo.setSelected(true);
+		tfDateStar.setEnabled(false);
+		tfDateFinish.setEnabled(false);
+		jcbBillboards.setSelectedIndex(0);
+		jcbHourStart.setSelectedItem(hour);
+		jcbHourFinish.setSelectedItem(hour);
+		jcbMinuteStart.setSelectedIndex(minInt);
+		jcbMinuteFinish.setSelectedIndex(minInt);
+
+		String startDate;
+		String startTime;
+		String finishDate;
+		String finishTime;
+
 		int add = JOptionPane.showConfirmDialog(this, pnlAddSchedule, "Add Schedule", JOptionPane.OK_CANCEL_OPTION,
 				JOptionPane.PLAIN_MESSAGE);
 		if (add == 0) {
 
-			LocalDateTime dateTime = LocalDateTime.of(LocalDate.now().getYear(), LocalDate.now().getMonthValue(),
-					Integer.parseInt(tfDay.getText().trim()), Integer.parseInt(tfHour.getText().trim()),
-					Integer.parseInt(tfMinute.getText().trim()));
-			int duration = Integer.parseInt(tfDurationOnce.getText().trim());
-			if (duration < 1) {
-				throw new Exception();
+			// Validations
+			if  (tfDateStar.getText().equals("")) {
+				JOptionPane.showMessageDialog(this, "Please enter a start date", "Error",
+						JOptionPane.ERROR_MESSAGE);
+				return null;
+			}else if(tfDateFinish.getText().equals("")){
+				JOptionPane.showMessageDialog(this, "Please enter a finish date", "Error",
+						JOptionPane.ERROR_MESSAGE);
+				return null;
+			}else if(jcbHourStart.getSelectedItem().equals("") || jcbHourFinish.getSelectedItem().equals("")){
+				JOptionPane.showMessageDialog(this, "Please enter the start and finish hour.",
+						"Error", JOptionPane.ERROR_MESSAGE);
+				return null;
+			}else if(jcbMinuteStart.getSelectedItem().equals("") || jcbMinuteFinish.getSelectedItem().equals("")){
+				JOptionPane.showMessageDialog(this, "Please enter the start and finish minutes.",
+						"Error", JOptionPane.ERROR_MESSAGE);
+				return null;
+			}else if(jcbBillboards.getSelectedItem().equals("")){
+				JOptionPane.showMessageDialog(this, "Please select a billboard.", "Error",
+						JOptionPane.ERROR_MESSAGE);
+				return null;
 			}
-			String billboardId = (String) jcbBillboards.getSelectedItem();
-			String repeat = (String) jcbRepeat.getSelectedItem();
-			int minutes = -1;
-			if (repeat.equals("Minutes")) {
-				String minutesStr = JOptionPane.showInputDialog("Specify minutes:");
-				minutes = Integer.parseInt(minutesStr);
-				if (minutes < 1) {
-					throw new Exception();
-				}
-			}
-			/*
-			 * When scheduling a billboard, the user may specify that the showing is to
-			 * recur every day, every hour or every minutes (with a limitation that a
-			 * billboard may not be scheduled more frequently than the duration of the
-			 * billboard.)
-			 */
-			if (repeat.equals("Hour")) {
-				if (duration < 60) {
-					throw new Exception("Duration is less than Hour!");
-				}
-			} else if (repeat.equals("Day")) {
-				if (duration < 60 * 24) {
-					throw new Exception("Duration is less than Day!");
-				}
-			}
-			if (minutes > 0) {
-				if (duration < minutes) {
-					throw new Exception("Duration is less than " + minutes + "!");
-				}
-				repeat += ":" + minutes;
-			}
-			schedule = new Schedule();
-			schedule.setDateTime(dateTime);
-			schedule.setDuration(duration);
-			schedule.setIdBillboard(billboardId);
-			schedule.setRepeat(repeat);
+			// Format start date
+			String [] dateStartFormat = tfDateStar.getText().split("/");
+			startDate = dateStartFormat[2]+"-"+dateStartFormat[1]+"-"+dateStartFormat[0];
+			startTime = jcbHourStart.getSelectedItem()+":"+jcbMinuteStart.getSelectedItem()+":00";
 
-			// New Code  Sasitheran
-			schedule.setDateTimeStart("");
-			schedule.setDateTimeFinish("");
-			schedule.setScheduleCreatedBy("");
-			//schedule.setScheduleCreateDate("");
+			// Format finish date
+			String [] dateFinishFormat = tfDateFinish.getText().split("/");
+			finishDate = dateFinishFormat[2]+"-"+dateFinishFormat[1]+"-"+dateFinishFormat[0];
+			finishTime = jcbHourFinish.getSelectedItem()+":"+ jcbMinuteFinish.getSelectedItem()+":00";
+
+			// Check if date is valid
+			SimpleDateFormat formatter = new SimpleDateFormat("dd/M/yyyy HH:mm:ss");
+			String dateStart    = tfDateStar.getText()+" "+startTime ;
+			String dateFinish   = tfDateFinish.getText()+" "+finishTime ;
+			Date dateTimeStart  = formatter.parse(dateStart);
+			Date dateTimeFinish = formatter.parse(dateFinish);
+
+			// Start and Finish date validation
+			boolean isDatesValid = (dateTimeStart.before(dateTimeFinish));
+			//System.out.println("Is valid: " + isDatesValid);
+			if(!isDatesValid){
+				JOptionPane.showMessageDialog(this, "Date and time start must be greater than date and time finish.", "Error",
+						JOptionPane.ERROR_MESSAGE);
+				return null;
+			}
+
+			if(jrbRecurNo.isSelected()){
+				schedule = new Schedule();
+				schedule.setDateTimeStart(startDate + " " + startTime.replace(":","-"));
+				schedule.setDateTimeFinish(finishDate + " " + finishTime.replace(":", "-"));
+				schedule.setIdBillboard((String) jcbBillboards.getSelectedItem());
+				schedule.setScheduleCreatedBy(Controller.userName);
+				list.add(schedule);
+			}
+			else if(jrbRecurDay.isSelected()){
+
+				LocalDate start = dateTimeStart.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+				LocalDate finish = dateTimeFinish.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();;
+				for (LocalDate date = start; date.isBefore(finish) || date.isEqual(finish); date = date.plusDays(1)) {
+					System.out.println("Date start: " + date+" "+startTime + ", "+"Date finish: " + date+" "+finishTime);
+
+					schedule = new Schedule();
+					schedule.setDateTimeStart(date + " " + startTime.replace(":","-"));
+					schedule.setDateTimeFinish(date + " " + finishTime.replace(":", "-"));
+					schedule.setIdBillboard((String) jcbBillboards.getSelectedItem());
+					schedule.setScheduleCreatedBy(Controller.userName);
+					list.add(schedule);
+				}
+
+			}
+			else if(jrbRecurHour.isSelected()){
+				System.out.println("Every hour is selected: " + jrbRecurHour.isSelected());
+			}
+			else if (jrbRecurMinutes.isSelected()){
+				System.out.println("Every  minutes is selected: " + jrbRecurMinutes.isSelected());
+			}
+
+
+
 
 		}
-		tfDay.setText("");
-		tfMinute.setText("");
-		tfDurationOnce.setText("");
-		tfHour.setText("");
-		jcbRepeat.setSelectedIndex(0);
-		return schedule;
+//		jcbRepeat.setSelectedIndex(0);
+		return list;
 	}
 
 	/**
@@ -406,6 +446,7 @@ public class SchedulesPanel extends JPanel {
 	public void updateBillboards(List<Billboard> billboards) {
 		System.out.println("Billboard list size: " + billboards.size());
 		jcbBillboards.removeAllItems();
+		jcbBillboards.addItem("");
 		System.out.println("Is empty: " + billboards);
 		for (Billboard b : billboards) {
 			jcbBillboards.addItem(b.getName());
@@ -452,6 +493,14 @@ public class SchedulesPanel extends JPanel {
 	 */
 	public JButton getBtnEditSchedule (){
 		return btnEditSchedule;
+	}
+
+	/**
+	 * Gets table AllSchedules.
+	 * @return the table all schedules
+	 */
+	public JTable getTblAllSchedules (){
+		return tblAllSchedules;
 	}
 
 }

@@ -107,61 +107,66 @@ public class ClientListener implements Runnable {
 	public void processCommand(Message msg, ObjectOutputStream oos)
 			throws IOException, SQLException, NoSuchAlgorithmException {
 		switch (msg.command()) {
-		case GET_BILLBOARD:
-			System.out.println("Get billboards request");
-			sendBillboard(msg, oos);
-			break;
-		case LOGIN:
-			System.out.println("Login request");
-			login(msg, oos);
-			break;
-		case USERS:
-			System.out.println("Users request");
-			users(msg, oos);
-			break;
-		case UPDATE_USER:
-			System.out.println("Update User request");
-			updateUser(msg, oos);
-			break;
-		case ADD_USER:
-			System.out.println("Add User request");
-			addUser(msg, oos);
-			break;
-		case LOGOUT:
-			System.out.println("Logout request");
-			logout(msg, oos);
-			break;
-		case DELETE_USER:
-			System.out.println("Delete User request");
-			deleteUser(msg, oos);
-			break;
-		case ADD_SCHEDULE:
-			System.out.println("Add Schedule request");
-			addSchedule(msg, oos);
-			break;
-		case BILLBOARDS:
-			System.out.println("Billboards request");
-			billboards(msg, oos);
-			break;
-		case SCHEDULES:
-			System.out.println("Schedules request");
-			schedules(msg, oos);
-			break;
-		case ADD_BILLBOARD:
-			System.out.println("Add Billboard request");
-			addBillboard(msg, oos);
-			break;
-		case DELETE_BILLBOARD:
-			System.out.println("Delete Billboard request");
-			deleteBillboard(msg, oos);
-			break;
-		case EDIT_BILLBOARD:
-			System.out.println("Edit Billboard request");
-			editBillboard(msg, oos);
-			break;
-		case TEST_COMMAND:
-			System.out.println("Test Command request");			
-			oos.writeObject("Test success");
+			case GET_BILLBOARD:
+				System.out.println("Get billboards request");
+				sendBillboard(msg, oos);
+				break;
+			case LOGIN:
+				System.out.println("Login request");
+				login(msg, oos);
+				break;
+			case USERS:
+				System.out.println("Users request");
+				users(msg, oos);
+				break;
+			case UPDATE_USER:
+				System.out.println("Update User request");
+				updateUser(msg, oos);
+				break;
+			case ADD_USER:
+				System.out.println("Add User request");
+				addUser(msg, oos);
+				break;
+			case LOGOUT:
+				System.out.println("Logout request");
+				logout(msg, oos);
+				break;
+			case DELETE_USER:
+				System.out.println("Delete User request");
+				deleteUser(msg, oos);
+				break;
+			case ADD_SCHEDULE:
+				System.out.println("Add Schedule request");
+				addSchedule(msg, oos);
+				break;
+			case BILLBOARDS:
+				System.out.println("Billboards request");
+				billboards(msg, oos);
+				break;
+			case SCHEDULES:
+				System.out.println("Schedules request");
+				schedules(msg, oos);
+				break;
+			case ADD_BILLBOARD:
+				System.out.println("Add Billboard request");
+				addBillboard(msg, oos);
+				break;
+			case DELETE_BILLBOARD:
+				System.out.println("Delete Billboard request");
+				deleteBillboard(msg, oos);
+				break;
+			case EDIT_BILLBOARD:
+				System.out.println("Edit Billboard request");
+				editBillboard(msg, oos);
+				break;
+			case TEST_COMMAND:
+				System.out.println("Test Command request");
+				oos.writeObject("Test success");
+			case DELETE_SCHEDULE:
+				System.out.println("Delet schedule request");
+				deleteSchedule(msg,oos);
+
+
 		}
 	}
 
@@ -247,14 +252,6 @@ public class ClientListener implements Runnable {
 				return;
 			}
 		}
-		// DEBUG ADDED BY FERNANDO
-		//System.out.println("Method editBillboard Class ClientLisnetes");
-		//System.out.println("1 if: " + (msg.token() != null));
-		//System.out.println("2 if: " + tokenPermissionMap.get(msg.token()).getCreate_billboards().equals(true));
-		//System.out.println("3 if: " +msg.billboard().getUsername().equals(tokenUserMap.get(msg.token())));
-		//System.out.println("4 if: " + (!DB.isScheduled(msg.billboard().getName())));
-		//System.out.println("5 if: " +tokenPermissionMap.get(msg.token()).getEdit_all_billboards().equals(true));
-
 
 		oos.writeObject(MessageBuilder.build(null, null, NO_PERMISSION, null, null, msg.token(),
 				null, null, null, null, null, null, null));
@@ -325,9 +322,26 @@ public class ClientListener implements Runnable {
 	 * @throws SQLException the SQL exception
 	 */
 	private void addSchedule(Message msg, ObjectOutputStream oos) throws IOException, SQLException {
-		//if (msg.token() != null && tokenPermissionMap.get(msg.token()).equals("Schedule Billboards")) {   			// Old code
 		if (msg.token() != null && tokenPermissionMap.get(msg.token()).getSchedule_billboards().equals(true)) {			// New code
 			DB.addSchedule(msg.schedule());
+		} else {
+			oos.writeObject(MessageBuilder.build(null, null, NO_PERMISSION, null,
+					null, msg.token(), null, null, null,
+					null, null, null, null));
+		}
+	}
+
+	/**
+	 * Delete the schedule. First, check permission, then connect to the database to
+	 * delete new record from 'schedule' table. Otherwise responds with 'no permission'.
+	 * @param msg the {@link Message}}
+	 * @param oos the output stream to write responses
+	 * @throws IOException  Signals that an I/O exception has occurred.
+	 * @throws SQLException the SQL exception
+	 */
+	private void deleteSchedule(Message msg, ObjectOutputStream oos) throws IOException, SQLException {
+		if (msg.token() != null && tokenPermissionMap.get(msg.token()).getSchedule_billboards().equals(true)) {			// New code
+			DB.deleteSchedule(msg.schedule().getId());
 		} else {
 			oos.writeObject(MessageBuilder.build(null, null, NO_PERMISSION, null,
 					null, msg.token(), null, null, null,
@@ -346,8 +360,6 @@ public class ClientListener implements Runnable {
 	 * @throws IOException  Signals that an I/O exception has occurred.
 	 */
 	private void schedules(Message msg, ObjectOutputStream oos) throws SQLException, IOException {
-		//if (msg.token().equals("viewer")																					// Old code
-		//		|| msg.token() != null && tokenPermissionMap.get(msg.token()).equals(Permission.SCHEDULE_BILLBOARDS)) {		// Old code
 		if (msg.token().equals("viewer")																					// New code
 				|| msg.token() != null && tokenPermissionMap.get(msg.token()).getSchedule_billboards().equals(true)) {		// New code
 			List<Schedule> schedules = DB.getSchedules();

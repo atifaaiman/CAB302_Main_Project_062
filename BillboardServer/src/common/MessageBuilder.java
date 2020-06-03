@@ -106,7 +106,6 @@ public class MessageBuilder {
 	
 	/**
 	 * Builds the {@link Message}.
-	 *
 	 * @param filename the filename
 	 * @param file the file
 	 * @param command the command
@@ -118,7 +117,6 @@ public class MessageBuilder {
 	
 	/**
 	 * Builds the {@link Message}.
-	 *
 	 * @param command the command
 	 * @return the message
 	 */
@@ -129,7 +127,6 @@ public class MessageBuilder {
 	
 	/**
 	 * Builds the {@link Message}.
-	 *
 	 * @param command the command
 	 * @param username the username
 	 * @param password the password
@@ -141,7 +138,6 @@ public class MessageBuilder {
 	
 	/**
 	 * Builds the {@link Message}.
-	 *
 	 * @param command the command
 	 * @param token the token
 	 * @return the message

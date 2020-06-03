@@ -68,7 +68,6 @@ public class UsersPanel extends JPanel {
 	};
 	private JTable tblAllUsers = new JTable(tblMdlAllUsers);
 
-
 	/**
 	 * Instantiates a new users panel.
 	 */

@@ -24,6 +24,7 @@ import javax.sql.rowset.serial.SerialBlob;
 import common.Billboard;
 import common.Schedule;
 import common.User;
+import org.mariadb.jdbc.internal.util.scheduler.SchedulerServiceProviderHolder;
 import org.w3c.dom.ls.LSOutput;
 
 /**
@@ -297,19 +298,30 @@ public class DB {
 		System.out.println("Schedule date_time_finish: " + sched.getDateTimeFinish());
 		System.out.println("Schedule created_by: " + sched.getScheduleCreatedBy());
 
-		try (Connection conn = getConnection();
+//		try (Connection conn = getConnection();
+//
+//				PreparedStatement stmt = conn.prepareStatement(
+//						//"insert into schedule (date_time, duration, `repeat`, name_billboard) value(?,?,?,?)")) {		// Old code
+//			"insert into schedule (date_time, duration, `repeat`, name_billboard, date_time_start," +
+//					"date_time_finish, schedule_create_by) value(?,?,?,?,?,?,?)")) {									// New code
+//			stmt.setTimestamp(1, Timestamp.valueOf(sched.getDateTime()));
+//			stmt.setInt      (2, sched.getDuration());
+//			stmt.setString   (3, sched.getRepeat());
+//			stmt.setString   (4, sched.getIdBillboard());
+//			stmt.setString   (5, sched.getDateTimeStart());												// New code
+//			stmt.setString   (6, sched.getDateTimeFinish());												// New code
+//			stmt.setString   (7, sched.getScheduleCreatedBy());											// New code
+//			stmt.executeUpdate();
+//		}
 
-				PreparedStatement stmt = conn.prepareStatement(
+		try (Connection conn = getConnection();
+			 PreparedStatement stmt = conn.prepareStatement(
 						//"insert into schedule (date_time, duration, `repeat`, name_billboard) value(?,?,?,?)")) {		// Old code
-			"insert into schedule (date_time, duration, `repeat`, name_billboard, date_time_start," +
-					"date_time_finish, schedule_create_by) value(?,?,?,?,?,?,?)")) {									// New code
-			stmt.setTimestamp(1, Timestamp.valueOf(sched.getDateTime()));
-			stmt.setInt      (2, sched.getDuration());
-			stmt.setString   (3, sched.getRepeat());
-			stmt.setString   (4, sched.getIdBillboard());
-			stmt.setString   (5, sched.getDateTimeStart());												// New code
-			stmt.setString   (6, sched.getDateTimeFinish());												// New code
-			stmt.setString   (7, sched.getScheduleCreatedBy());											// New code
+			"insert into schedule (name_billboard, date_time_start," + "date_time_finish, schedule_create_by) value(?,?,?,?)")) {									// New code
+			stmt.setString   (1, sched.getIdBillboard());
+			stmt.setString   (2, sched.getDateTimeStart());												// New code
+			stmt.setString   (3, sched.getDateTimeFinish());												// New code
+			stmt.setString   (4, sched.getScheduleCreatedBy());											// New code
 			stmt.executeUpdate();
 		}
 	}
@@ -335,15 +347,34 @@ public class DB {
 	 * @return the schedules
 	 * @throws SQLException the SQL exception
 	 */
+//	public static List<Schedule> getSchedules() throws SQLException {
+//		List<Schedule> schedules = new ArrayList<>();
+//		try (Connection conn = getConnection(); Statement stmt = conn.createStatement()) {
+//			try (ResultSet rs = stmt.executeQuery("select * from schedule")) {
+//				while (rs.next()) {
+//					schedules.add(new Schedule(rs.getInt(1), rs.getTimestamp(2).toLocalDateTime(),
+//							rs.getInt(3), rs.getString(4), rs.getString(5),
+//							rs.getString(6),rs.getString(7),rs.getString(8),  // Added  by Fernando
+//							rs.getString(9)));														 // Added by Fernando
+//				}
+//			}
+//		}
+//		return schedules;
+//	}
+
 	public static List<Schedule> getSchedules() throws SQLException {
 		List<Schedule> schedules = new ArrayList<>();
 		try (Connection conn = getConnection(); Statement stmt = conn.createStatement()) {
 			try (ResultSet rs = stmt.executeQuery("select * from schedule")) {
 				while (rs.next()) {
-					schedules.add(new Schedule(rs.getInt(1), rs.getTimestamp(2).toLocalDateTime(),
-							rs.getInt(3), rs.getString(4), rs.getString(5),
-							rs.getString(6),rs.getString(7),rs.getString(8),  // Added  by Fernando
-							rs.getString(9)));														 // Added by Fernando
+					Schedule schedule = new Schedule();
+					schedule.setId(rs.getInt(1));
+					schedule.setIdBillboard(rs.getString(2));
+					schedule.setDateTimeStart(rs.getString(3));
+					schedule.setDateTimeFinish(rs.getString(4));
+					schedule.setScheduleCreatedBy(rs.getString(5));
+					schedule.setScheduleCreateDate(rs.getString(6));
+					schedules.add(schedule);														 					// Added by Fernando
 				}
 			}
 		}
@@ -390,12 +421,6 @@ public class DB {
 			stmt.executeUpdate();
 		}
 	}
-
-	public static void main(String[] args) {
-		LocalDateTime myObj = LocalDateTime.now();
-		System.out.println(myObj);
-	}
-
 
 	// -------------------------------------------------- USER --------------------------------------------------------
 
@@ -551,11 +576,7 @@ public class DB {
 		LocalDateTime localDate = LocalDateTime.now();
 		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("YYYY-MM-dd HH:mm:ss");
 		String currentDate =  dtf.format(localDate).toString();
-
-		// DEBUG
-		//String currentDate = "2020-05-27 17:55:00";
-		//System.out.println("Current date: " + currentDate);
-		//System.out.println("Current date: " + currentDate1);
+		System.out.println(currentDate);
 
 		// Query
 		String query = "SELECT * FROM schedule WHERE schedule_create_date=(" +
@@ -571,7 +592,7 @@ public class DB {
 
 			// Check each row of the table
 			while (resultSet.next()) {
-				billboardName= resultSet.getString(5);
+				billboardName= resultSet.getString(2);
 				//System.out.println("Billboard name: " + billboardName);
 			}
 			return billboardName;
@@ -579,6 +600,7 @@ public class DB {
 		catch (SQLException e){
 			System.out.println("DB.executeGetSchedule(): " + e.getMessage());
 		}
+		//System.out.println("Billboard name:" + billboardName);
 		return billboardName;
 	}
 

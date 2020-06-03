@@ -3,6 +3,7 @@ import java.awt.event.MouseEvent;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
+import java.util.List;
 
 import javax.swing.Timer;
 import javax.xml.parsers.ParserConfigurationException;
@@ -53,10 +54,13 @@ public class Controller implements Observable {
 	private int rowSelectedBillboardPanel = -1;
 
 	/** The row selected by the user in the User Panel. */
-	private int rowSelectedSchedulePanel;
+	private int rowSelectedSchedulePanel = -1;
 
 	/** Controle the action of add billboards from import XML button. */
 	private boolean importXML = false;
+
+	// User name
+	public static String userName;
 
 	/**
 	 * Instantiates a new controller.
@@ -90,6 +94,14 @@ public class Controller implements Observable {
 		// Schedule
 		gui.getSchedulesPanel().getBtnAddSchedule().addActionListener(e -> addSchedule());
 		gui.getSchedulesPanel().getBtnLogout().addActionListener(e -> logout());
+		gui.getSchedulesPanel().getBtnDeleteSchedule().addActionListener(e-> deleteSchedule(rowSelectedBillboardPanel));
+		gui.getSchedulesPanel().getTblAllSchedules().addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent me) {
+				rowSelectedSchedulePanel = gui.getSchedulesPanel().getTblAllSchedules().getSelectedRow();
+				System.out.println("Row number: " + rowSelectedSchedulePanel);
+			}
+		});
 		gui.getSchedulesPanel().getBtnShowSchedule().addActionListener(e-> {
 			showSchedules();
 		});
@@ -290,7 +302,7 @@ public class Controller implements Observable {
 	/**
 	 * Show the Billboard.
 	 */
-	private void showBillboards() {
+	public void showBillboards() {
 		try {
 			outputCommandHandler.allBillboards(inputCommandHandler.getSessionToken());
 			gui.getBillboardPanel().getBtnShowBillboards().setText("Update List");
@@ -309,6 +321,7 @@ public class Controller implements Observable {
 		try {
 			outputCommandHandler.login(gui.getLoginPanel().getTfUsername().getText(),
 					new String(gui.getLoginPanel().getPfPassword().getPassword()));
+					userName = gui.getLoginPanel().getTfUsername().getText();
 		} catch (NoSuchAlgorithmException | IOException e) {
 			GUI.displayError(e.getMessage());
 		}
@@ -332,12 +345,45 @@ public class Controller implements Observable {
 	 */
 	private void addSchedule() {
 		try {
-			Schedule sched = gui.getSchedulesPanel().addSchedule();
-			if (sched != null) {
-				outputCommandHandler.addSchedule(sched, inputCommandHandler.getSessionToken());
+			List<Schedule> scheds = gui.getSchedulesPanel().addSchedule();
+			if (scheds != null) {
+				System.out.println("List size: " + scheds.size());
+				for (int i = 0 ; i < scheds.size(); i++){
+					Schedule schedule = scheds.get(i);
+					outputCommandHandler.addSchedule(schedule, inputCommandHandler.getSessionToken());
+					showSchedules();
+				}
 			}
 		} catch (Exception e) {
 			GUI.displayError(e.getMessage());
+		}
+	}
+
+	/**
+	 * Deletes user by selected row
+	 * @param row the row selected by user
+	 */
+	private void deleteSchedule(int row) {
+		if(rowSelectedSchedulePanel != -1){
+			int scheduleId = (int) gui.getSchedulesPanel().getTblAllSchedules().getValueAt(row, 0);
+			Schedule schedule = new Schedule();
+			schedule.setId(scheduleId);
+			try {
+				System.out.println("Controller.java - Line 372: deleteSchedule();" );
+				outputCommandHandler.deleteSchedule(schedule, inputCommandHandler.getSessionToken());
+				rowSelectedSchedulePanel = -1;
+				// Update user list
+				try {
+					outputCommandHandler.allUsers(inputCommandHandler.getSessionToken());
+					rowSelectedSchedulePanel = -1;
+				} catch (IOException exc) {
+					rowSelectedSchedulePanel = -1;
+					GUI.displayError(exc.getMessage());
+				}
+			} catch (NoSuchAlgorithmException | IOException e) {
+				rowSelectedSchedulePanel = -1;
+				GUI.displayError(e.getMessage());
+			}
 		}
 	}
 

@@ -23,6 +23,7 @@ public class LoginPanel extends JPanel {
 	private JButton btnLogin = new JButton("Login");
 	private JButton btnClose = new JButton("Close");
 
+
 	/**
 	 * Instantiates a new login panel.
 	 */

@@ -4,14 +4,18 @@ import org.xml.sax.SAXException;
 
 import javax.imageio.ImageIO;
 import javax.lang.model.element.NestingKind;
+import javax.print.Doc;
 import javax.sql.rowset.serial.SerialException;
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.DefaultTableModel;
+import javax.xml.catalog.Catalog;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
@@ -42,7 +46,7 @@ import java.util.List;
  */
 public class BillboardsPanel extends JPanel {
 
-	/** Billboard Panel components */
+	/** Billboard Panel components Main Panel*/
 	private final JButton btnLogout 			= new JButton("Logout");
 	private final JButton btnAddBillboard 		= new JButton("Add  ");
 	private final JButton btnShowBillboards		= new JButton("Show Billboards");
@@ -80,17 +84,18 @@ public class BillboardsPanel extends JPanel {
 	/** Stores current billboards, updates when click "Update List" button. */
 	private List<Billboard> billboards;
 
-	/** Billboard Create Panel components */
+	/** Billboard Create Panel components Edit Billboard Panel*/
 	private final JPanel addBillboardPanel 	= new JPanel();
 	private final JButton btnPreview 		= new JButton("Preview");
 	private final JButton btnBackground 	= new JButton("Background Colour");
 	private final JButton btnMsgColour 		= new JButton ("Text Colour");
 	private final JButton btnInfoColour		= new JButton("Text Colour");
 	private final JButton btnAddImage		= new JButton("Add ");
-	private final JButton btnDeleteImage		= new JButton("Delete");
+	private final JButton btnDeleteImage	= new JButton("Delete");
 	private final JPanel pnlInfoColour 		= new JPanel();
 	private final JPanel pnlMsgColour 		= new JPanel();
 	private final JPanel pnlBackground		= new JPanel();
+	private final JPanel pnlGap				= new JPanel();
 	private final JTextField tfMsgText 		= new JTextField(15);
 	private final JTextField tfInfoText 	= new JTextField(15);
 	private final JRadioButton jrbBase64 	= new JRadioButton("Image", true);
@@ -115,7 +120,11 @@ public class BillboardsPanel extends JPanel {
 	 */
 	private void initGUIComponents() {
 
-		// MAIN BILLBOARD PANEL
+		//--------------------------------------------------------------------------------------------------------------
+		/*
+		* MAIN BILLBOARD PANEL
+		*/
+		//--------------------------------------------------------------------------------------------------------------
 		setLayout(new BorderLayout());
 		setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 		// NORTH
@@ -139,11 +148,11 @@ public class BillboardsPanel extends JPanel {
 		boxSouth.add(pnlLeftSouth);
 		add(boxSouth, BorderLayout.SOUTH);
 
-
-
+		//--------------------------------------------------------------------------------------------------------------
 		/*
 		 * Init AddBillboard panel.
 		 */
+		//--------------------------------------------------------------------------------------------------------------
 		Box mainPanel = Box.createVerticalBox();
 
 		JPanel panel1 = new JPanel();
@@ -193,7 +202,6 @@ public class BillboardsPanel extends JPanel {
 		panel4.setBorder(BorderFactory.createDashedBorder(Color.darkGray));
 		panel4.setBorder(BorderFactory.createTitledBorder("Image:"));
 		panel4.add(jrbBase64);
-		JPanel pnlGap = new JPanel();
 		panel4.add(pnlGap);
 		panel4.add(lblSelectImage);
 		panel4.add(pnlPicture);
@@ -210,7 +218,7 @@ public class BillboardsPanel extends JPanel {
 		JPanel panel6 = new JPanel();
 		panel6.setLayout(new FlowLayout(FlowLayout.RIGHT));
 		panel6.add(btnPreview);
-
+		setDefaultColors();
 		mainPanel.add(panel1);
 		mainPanel.add(panel2);
 		mainPanel.add(panel3);
@@ -219,13 +227,9 @@ public class BillboardsPanel extends JPanel {
 		mainPanel.add(panel6);
 		addBillboardPanel.add(mainPanel);
 
-		//-------------------------------------------------
-
-		// Components attributes
-		pnlGap.setBackground(DEFAULT_COLOR);
-		pnlBackground.setBackground(Color.white);
-		pnlMsgColour.setBackground (Color.gray);
-		pnlInfoColour.setBackground(Color.DARK_GRAY);
+		//--------------------------------------------------------------------------------------------------------------
+		// Components setup
+		//--------------------------------------------------------------------------------------------------------------
 		pnlGap.setPreferredSize	(new Dimension (110,18));
 		pnlInfoColour.setPreferredSize	(new Dimension (40,18));
 		pnlMsgColour.setPreferredSize	(new Dimension (40,18));
@@ -233,39 +237,29 @@ public class BillboardsPanel extends JPanel {
 		ButtonGroup bg = new ButtonGroup();
 		bg.add(jrbBase64);
 		bg.add(jrbURL);
-		//pnlPicture.add(lblSelectImage);
-		//pnlPicture.add(tfPicURL);
-		//pnlPicture.setPreferredSize(new Dimension(120, 70));
-
-		try{
-			BufferedImage bi = ImageIO.read(new File("./pictureIcon.png"));
-			Image image = bi.getScaledInstance(imgWidth, imgHeight, Image.SCALE_SMOOTH);
-			lblSelectImage.setIcon(new ImageIcon(image));
-		} catch (IOException e) {
-			System.out.println(e.getMessage());
-		}
-		tfPicURL.setVisible(false); // Because base64 by default.
+		setDefaultImage();
 		btnDeleteImage.addActionListener(e -> setDefaultImage());
+		disableButtons();
 
-		//addBillboardPanel.setLayout(new GridLayout(9, 2, 10, 10));
-		//addBillboardPanel.add(new JLabel("Billboard name:"));
-		//addBillboardPanel.add(tfBlbdName);
-		//addBillboardPanel.add(btnBackground);
-		//addBillboardPanel.add(pnlBackground);
-		//addBillboardPanel.add(btnMsgColour);
-		//addBillboardPanel.add(pnlMsgColour);
-		//addBillboardPanel.add(btnInfoColour);
-		//addBillboardPanel.add(pnlInfoColour);
-		//addBillboardPanel.add(new JLabel("Add message text:"));
-		//addBillboardPanel.add(tfMsgText);
-		//addBillboardPanel.add(new JLabel("Add information text:"));
-		//addBillboardPanel.add(tfInfoText);
-		//addBillboardPanel.add(jrbBase64);
-		//addBillboardPanel.add(jrbURL);
-		//addBillboardPanel.add(new JLabel("Add Picture:"));
-		//addBillboardPanel.add(pnlPicture);
-		//addBillboardPanel.add(btnPreview);
-		//addBillboardPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+	}
+
+	/**
+	 * Set default colour for the gui interface.
+	 */
+	public void setDefaultColors(){
+		pnlGap.setBackground(DEFAULT_COLOR);
+		pnlBackground.setBackground(Color.white);
+		pnlMsgColour.setBackground (Color.gray);
+		pnlInfoColour.setBackground(Color.DARK_GRAY);
+	}
+
+	/**
+	 * Set disable buttons if no row is selected.
+	 */
+	public void disableButtons(){
+		btnDeleteBillboard.setEnabled(false);
+		btnEditBillboard.setEnabled(false);
+		btnPreviewBillboard.setEnabled(false);
 	}
 
 	/**
@@ -294,11 +288,6 @@ public class BillboardsPanel extends JPanel {
 	 * @throws IOException Signals that an I/O exception has occurred.
 	 */
 	public void setDefaultImage() {
-
-		//imgData = Files.readAllBytes(img.toPath());
-		//BufferedImage bi = ImageIO.read(img);
-		//Image image = bi.getScaledInstance(120, 50, Image.SCALE_SMOOTH);
-		//lblSelectImage.setIcon(new ImageIcon(image));
 		try{
 			BufferedImage bi = ImageIO.read(new File("./pictureIcon.png"));
 			Image image = bi.getScaledInstance(imgWidth, imgHeight, Image.SCALE_SMOOTH);
@@ -310,7 +299,6 @@ public class BillboardsPanel extends JPanel {
 		}
 	}
 
-
 	/**
 	 * Adds the info colour.
 	 */
@@ -321,12 +309,13 @@ public class BillboardsPanel extends JPanel {
 
 	/**
 	 * Deletes billboard.
-	 *
 	 * @param row the row
 	 * @return the billboard
 	 */
 	public Billboard deleteBillboard(int row) {
+		disableButtons();
 		return billboards.get(row);
+
 	}
 
 	/**
@@ -347,7 +336,6 @@ public class BillboardsPanel extends JPanel {
 
 	/**
 	 * Shows billboard preview.
-	 *
 	 * @param row the row where user clicks to preview billboard data
 	 * @throws ParserConfigurationException the parser configuration exception
 	 * @throws SAXException                 the SAX exception
@@ -369,6 +357,16 @@ public class BillboardsPanel extends JPanel {
 	 * @throws Exception the exception
 	 */
 	public void preview() throws Exception {
+		Document doc = createXML();
+		showPreview(doc);
+	}
+
+	/**
+	 * Creates XML document using the data entered by the use rin the Add Billboard Panel,
+	 * it stores the document to temp/billboard.xml file.
+	 * @throws Exception the exception
+	 */
+	public Document createXML() throws Exception {
 
 		DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
 		DocumentBuilder docBuilder = dbFactory.newDocumentBuilder();
@@ -440,21 +438,32 @@ public class BillboardsPanel extends JPanel {
 			throw new Exception("Select at least 1 attribute!");
 		}
 
+//		TransformerFactory transformerFactory = TransformerFactory.newInstance();
+//		Transformer transformer = transformerFactory.newTransformer();
+//		DOMSource source = new DOMSource(doc);
+//		StreamResult result = new StreamResult(new File("temp/billboard.xml"));
+//		transformer.transform(source, result);
+
+		lblSelectImage.setText("");
+		return doc;
+	}
+
+	/**
+	 * It stores the document to temp/billboard.xml file.
+	 * @throws TransformerException
+	 */
+	public void setTempXML(Document doc) throws TransformerException {
+
 		TransformerFactory transformerFactory = TransformerFactory.newInstance();
 		Transformer transformer = transformerFactory.newTransformer();
 		DOMSource source = new DOMSource(doc);
 		StreamResult result = new StreamResult(new File("temp/billboard.xml"));
 		transformer.transform(source, result);
-
-		lblSelectImage.setText("");
-
-		showPreview(doc);
 	}
 
 	/**
 	 * Shows preview. Creates instance of {@link GUIPreview} and shows it as a
 	 * dialog box.
-	 *
 	 * @param doc the doc
 	 * @throws MalformedURLException the malformed URL exception
 	 * @throws DOMException          the DOM exception
@@ -465,14 +474,11 @@ public class BillboardsPanel extends JPanel {
 		guiPreview.revalidate();
 		guiPreview.updateUI();
 		JOptionPane.showMessageDialog(null, guiPreview, "Billboard Preview",JOptionPane.PLAIN_MESSAGE );
-
-		//int add = JOptionPane.showConfirmDialog(this, pnlAddUser, "Add User",
-		//		JOptionPane.OK_CANCEL_OPTION,JOptionPane.PLAIN_MESSAGE);
+		disableButtons();
 	}
 
 	/**
 	 * Edits the billboard.
-	 *
 	 * @param row the row where user clicks to select required billboard entry
 	 * @return the billboard to be edited
 	 * @throws IOException                  Signals that an I/O exception has
@@ -481,6 +487,9 @@ public class BillboardsPanel extends JPanel {
 	 * @throws SAXException                 the SAX exception
 	 */
 	public Billboard editBillboard(int row) throws IOException, ParserConfigurationException, SAXException {
+		jrbBase64.setSelected(true);
+		lblSelectImage.setVisible(true);
+		tfPicURL.setVisible(false);
 		Billboard blbrd = billboards.get(row);
 		tfBlbdName.setText(blbrd.getName());
 
@@ -530,12 +539,26 @@ public class BillboardsPanel extends JPanel {
 		}
 		int edit = JOptionPane.showConfirmDialog(this, addBillboardPanel, "Edit Billboard",
 				JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
-		if (edit == 0) { // If OK.
 
-			blbrd.setXmlData(Files.readAllBytes(Paths.get("temp/billboard.xml")));
+		// If clicked in OK.
+		if (edit == 0) {
+			try{
+				Document doc1 = createXML();
+				setTempXML(doc1);  				// test
+				blbrd.setXmlData(Files.readAllBytes(Paths.get("temp/billboard.xml")));
+			} catch (Exception e){
+				System.out.println(e.getMessage());
 
+			}
 		}
+		disableButtons();
 		tfBlbdName.setEditable(true);
+		//tfPicURL.setVisible(false);
+		tfBlbdName.setText("");
+		tfMsgText.setText("");
+		tfInfoText.setText("");
+		setDefaultImage();
+		jrbBase64.setSelected(true);
 		return blbrd;
 	}
 
@@ -548,28 +571,49 @@ public class BillboardsPanel extends JPanel {
 	 * @throws IOException     Signals that an I/O exception has occurred.
 	 */
 	public Billboard addBuilboard() throws SerialException, SQLException, IOException {
+		setDefaultColors();
+		jrbBase64.setSelected(true);
+		lblSelectImage.setVisible(true);
+		tfPicURL.setVisible(false);
+		tfBlbdName.setText("");
+		tfMsgText.setText("");
+		tfInfoText.setText("");
 
 		Billboard billboard = null;
+
 		int add = JOptionPane.showConfirmDialog(this, addBillboardPanel, "Add Billboard",
 				JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
 
-		if (add == 0) { // If OK.
+		// If user clicked OK.
+		if (add == 0) {
 			String blbdName = tfBlbdName.getText().trim();
 			if (blbdName.isEmpty()) {
-				GUI.displayError("Enter name!");
+				GUI.displayError("Enter billboard name!");
 				return null;
 			}
 			billboard = new Billboard();
-			billboard.setXmlData(Files.readAllBytes(Paths.get("temp/billboard.xml")));
-			billboard.setName(blbdName);
+			try {
+				Document doc = createXML();
+				setTempXML(doc);  			// test
+				//System.out.println("XML: " + doc);
+				billboard.setXmlData(Files.readAllBytes(Paths.get("temp/billboard.xml")));
+				billboard.setName(blbdName);
+			} catch (Exception e) {
+				System.out.println(e.getMessage());;
+			}
+
 		}
+		disableButtons();
+		tfBlbdName.setText("");
+		tfMsgText.setText("");
+		tfInfoText.setText("");
+		setDefaultImage();
+		jrbBase64.setSelected(true);
 		return billboard;
 	}
 
 	/**
-	 * Updates tables with all billboards. This method is invoked by timer in
-	 * {@link Controller} class every {@link GUI#UPDATE_DELAY}.
-	 *
+	 * Updates tables with all billboards.
 	 * @param billboards the billboards list to be iterated
 	 */
 	public void updateTable(List<Billboard> billboards) {
@@ -582,7 +626,6 @@ public class BillboardsPanel extends JPanel {
 			String time = dataSplit[1];
 			String dateSplit[] = dataSplit[0].split("-");
 			String date = dateSplit[2]+"/"+dateSplit[1]+"/"+dateSplit[0];
-
 			tblMdlAllBillboards.addRow(new Object[] { b.getName(), b.getUsername(), date, time });
 		}
 		revalidate();

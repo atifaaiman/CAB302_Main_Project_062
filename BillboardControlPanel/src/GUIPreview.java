@@ -389,7 +389,7 @@ public class GUIPreview extends JPanel {
 		int newSize = (int) (curFont.getSize() * widthScale);
 		int componentHeight = (int) msgLbl.getPreferredSize().getHeight();
 		int newFontSize = Math.min(newSize, componentHeight);
-		return newFontSize - 4;  // Test Fernando add -4
+		return newFontSize - 10;  // Test Fernando add -4
 	}
 
 	/**

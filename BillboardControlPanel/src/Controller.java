@@ -47,7 +47,7 @@ public class Controller implements Observable {
 	private Timer timerUpdateSchedules;
 
 	/** The row selected by the user in the User Panel. */
-	private int rowSelectedUserPanel;
+	private int rowSelectedUserPanel = -1;
 
 	/** The row selected by the user in the User Panel. */
 	private int rowSelectedBillboardPanel = -1;
@@ -90,26 +90,43 @@ public class Controller implements Observable {
 
 		// User Panel
 		gui.getUsersPanel().getBtnShowUsers().addActionListener(e -> showUsers());												// Added by Fernando
-		gui.getUsersPanel().getBtnDeleteUser().addActionListener(e -> deleteUser(rowSelectedUserPanel));			    		// Added by Fernando
+		gui.getUsersPanel().getBtnDeleteUser().addActionListener(e -> {
+			deleteUser(rowSelectedUserPanel);
+			gui.getUsersPanel().getBtnDeleteUser().setEnabled(false);
+			gui.getUsersPanel().getBtnEditUser().setEnabled(false);
+			rowSelectedUserPanel = -1;
+			showUsers();
+
+		});			    		// Added by Fernando
 		gui.getUsersPanel().getBtnEditUser().addActionListener(e -> editUser(rowSelectedUserPanel));				    		// Added by Fernando
 		gui.getUsersPanel().getBtnLogout().addActionListener(e -> logout());
 		gui.getUsersPanel().getBtnAddUser().addActionListener(e -> addUser());
 		gui.getUsersPanel().getTblAllUsers().addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent me) {
-				rowSelectedUserPanel = gui.getUsersPanel().getTblAllUsers().rowAtPoint(me.getPoint());
-				//System.out.println("Row number: " + rowSelectedUserPanel);
+				rowSelectedUserPanel = gui.getUsersPanel().getTblAllUsers().getSelectedRow();
+				gui.getUsersPanel().getBtnEditUser().setEnabled(true);
+				gui.getUsersPanel().getBtnDeleteUser().setEnabled(true);
+				System.out.println("Row number: " + rowSelectedUserPanel);
+
 			}
 		});
 		// Billboard Panel
 		gui.getBillboardPanel().getBtnShowBillboards().addActionListener(e -> showBillboards());							    // Added by Fernando
 		gui.getBillboardPanel().getBtnDeleteBillboard().addActionListener(e -> deleteBillboard(rowSelectedBillboardPanel));		// Added by Fernando
 		gui.getBillboardPanel().getBtnEditBillboard().addActionListener(e -> editBillboard(rowSelectedBillboardPanel));			// Added by Fernando
-		gui.getBillboardPanel().getBtnPreviewBillboard().addActionListener(e -> preview(rowSelectedBillboardPanel));			// Added by Fernando
+		gui.getBillboardPanel().getBtnPreviewBillboard().addActionListener(e -> {
+			preview(rowSelectedBillboardPanel);
+			rowSelectedBillboardPanel = -1;
+			showBillboards();
+		});			// Added by Fernando
 		gui.getBillboardPanel().getTblAllBillboards().addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent me) {
-				rowSelectedBillboardPanel = gui.getBillboardPanel().getTblAllBillboards().rowAtPoint(me.getPoint());
+				rowSelectedBillboardPanel= gui.getBillboardPanel().getTblAllBillboards().getSelectedRow();
+				gui.getBillboardPanel().getBtnEditBillboard().setEnabled(true);		// Test
+				gui.getBillboardPanel().getBtnDeleteBillboard().setEnabled(true);	// Test
+				gui.getBillboardPanel().getBtnPreviewBillboard().setEnabled(true);	// Test
 				//System.out.println("Row number: " + rowSelectedBillboardPanel);
 			}
 		});
@@ -133,7 +150,6 @@ public class Controller implements Observable {
 			gui.getBillboardPanel().getLblSelectImage().setVisible(false);
 			gui.getBillboardPanel().getTfPicURL().setVisible(true);
 		});
-		//gui.getBillboardPanel().getPnlPicture().addMouseListener(new MouseAdapter() {
 		gui.getBillboardPanel().getBtnAddImage().addActionListener(e -> {
 				try {
 					gui.getBillboardPanel().selectImage();
@@ -141,13 +157,6 @@ public class Controller implements Observable {
 					GUI.displayError(e2.getMessage());
 				}
 		});
-//		gui.getBillboardPanel().getBtnAddImage().addActionListener(e -> {
-//			try {
-//				gui.getBillboardPanel().selectImage();
-//			} catch (IOException e2) {
-//				GUI.displayError(e2.getMessage());
-//			}
-//		});
 		inputCommandHandler.addObserver(this);
 	}
 
@@ -162,7 +171,9 @@ public class Controller implements Observable {
 		else {
 			try {
 				gui.getBillboardPanel().preview(row);
+				rowSelectedBillboardPanel = -1;
 			} catch (ParserConfigurationException | SAXException | IOException e) {
+				rowSelectedBillboardPanel = -1;
 				GUI.displayError(e.getMessage());
 			}
 		}
@@ -245,7 +256,7 @@ public class Controller implements Observable {
 	}
 
 	/**
-	 * Show the users.
+	 * Show the Billboard.
 	 */
 	private void showBillboards() {
 		try {
@@ -328,6 +339,7 @@ public class Controller implements Observable {
 				GUI.displayError(e.getMessage());
 			}
 		}
+		showUsers();
 	}
 
 	/**
@@ -335,19 +347,21 @@ public class Controller implements Observable {
 	 * @param row the row the user selected
 	 */
 	private void editUser(int row) {
-		if(rowSelectedUserPanel != 0) {
+		if(rowSelectedUserPanel != -1) {
 			User user = gui.getUsersPanel().editUser(row);
 			if (user != null) {
 				try {
 					outputCommandHandler.editUser(user, inputCommandHandler.getSessionToken());
-					rowSelectedUserPanel = 0;
+					rowSelectedUserPanel = -1;
 					// Update user list
 					try {
 						outputCommandHandler.allUsers(inputCommandHandler.getSessionToken());
 					} catch (IOException exc) {
+						rowSelectedUserPanel = -1;
 						GUI.displayError(exc.getMessage());
 					}
 				} catch (NoSuchAlgorithmException | IOException e) {
+					rowSelectedUserPanel = -1;
 					GUI.displayError(e.getMessage());
 				}
 			}
@@ -360,20 +374,23 @@ public class Controller implements Observable {
 	 * @param row the row selected by user
 	 */
 	private void deleteUser(int row) {
-		if(rowSelectedUserPanel != 0){
+		if(rowSelectedUserPanel != -1){
 			String username = (String) gui.getUsersPanel().getTblAllUsers().getValueAt(row, 0);
 			User user = new User();
 			user.setUsername(username);
 			try {
 				outputCommandHandler.deleteUser(user, inputCommandHandler.getSessionToken());
-				rowSelectedUserPanel = 0;
+				rowSelectedUserPanel = -1;
 				// Update user list
 				try {
 					outputCommandHandler.allUsers(inputCommandHandler.getSessionToken());
+					rowSelectedUserPanel = -1;
 				} catch (IOException exc) {
+					rowSelectedUserPanel = -1;
 					GUI.displayError(exc.getMessage());
 				}
 			} catch (NoSuchAlgorithmException | IOException e) {
+				rowSelectedUserPanel = -1;
 				GUI.displayError(e.getMessage());
 			}
 		}

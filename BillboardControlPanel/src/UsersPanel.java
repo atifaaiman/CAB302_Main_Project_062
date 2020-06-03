@@ -208,7 +208,16 @@ public class UsersPanel extends JPanel {
 		pnlEditUser.add(boxEditUser);
 
 		// Action Listener to control change password label
+		disableButtons();
 		getCbChangePasswordEditUser().addActionListener(e->setPassword());
+	}
+
+	/**
+	 * Disable buttons "Edit user" and "Delete User" until user select a row in the table.
+	 */
+	private void disableButtons(){
+		btnDeleteUser.setEnabled(false);
+		btnEditUser.setEnabled(false);
 	}
 
 	/**
@@ -289,6 +298,7 @@ public class UsersPanel extends JPanel {
 		/*
 		 * Reset components.
 		 */
+		disableButtons();
 		tfUsername.setText("");
 		pfPassword.setText("");
 		jcbPermissions.setSelectedIndex(0);
@@ -374,6 +384,7 @@ public class UsersPanel extends JPanel {
 		/*
 		 * Reset components.
 		 */
+		disableButtons();
 		tfUsernameEditUser.setText("");
 		//pfPasswordEditUser.setText();
 		jcbPermissions.setSelectedIndex(0);

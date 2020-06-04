@@ -12,6 +12,7 @@ public class ReadPropsFile {
     private String host = "";
     private int port = 0;
 
+
     public ReadPropsFile(){
         readeProps();
     }
@@ -29,6 +30,7 @@ public class ReadPropsFile {
             props.load(fileStream);
             this.host = props.getProperty("host");
             this.port = Integer.parseInt(props.getProperty("port"));
+
 
         } catch (FileNotFoundException e1) {
             System.out.println(e1.getMessage());
@@ -56,9 +58,8 @@ public class ReadPropsFile {
     }
 
 
+
 }
-
-
 
 
 

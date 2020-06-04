@@ -32,11 +32,11 @@ import common.MessageBuilder;
 public class GUI extends JFrame {
 
 	/* The Constant serialVersionUID. */
-    private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 1L;
 
-    /**
-    * Constant to store number of milliseconds between server connections.
-    */
+	/**
+	 * Constant to store number of milliseconds between server connections.
+	 */
 	public final static int SERVER_CONNECTION_PERIOD = 15_000;
 
 	/* The Constant NETWORK_PROPERTIES_FILENAME. */
@@ -68,12 +68,21 @@ public class GUI extends JFrame {
 
 	/* The name. */
 	private String name;
-	
+
+	//
+	private String billboardName;
+
+	// Define variables to keep track what tags are present inside
+	// <billboard>.
+	private boolean msgAttr;
+	private boolean picAttr;
+	private boolean infAttr;
+
 
 	/**
-	* Instantiates a new gui.
-	*  @param title the title
-	*
+	 * Instantiates a new gui.
+	 *  @param title the title
+	 *
 	 */
 
 	public GUI(String title) {
@@ -87,7 +96,7 @@ public class GUI extends JFrame {
 			public void keyPressed(KeyEvent e) {
 				if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
 					System.exit(0);
-			// dispose();
+					// dispose();
 				}
 			}
 		});
@@ -123,9 +132,6 @@ public class GUI extends JFrame {
 		connectToServer();
 		new Timer(SERVER_CONNECTION_PERIOD, e -> {
 			boolean isConnected = connectToServer();
-			//System.out.println("Connection: " + isConnected);
-			//System.out.println("Getting billboard from the serve...");													// Debug added by Fernando
-
 		}).start();
 	}
 
@@ -138,44 +144,46 @@ public class GUI extends JFrame {
 		String host = rpf.getHost();
 		int port    = rpf.getPort();
 
+		try {
+			Socket serverSocket = new Socket(host, port);
+			ObjectOutputStream oos = new ObjectOutputStream(serverSocket.getOutputStream());
+			Billboard billboard = new Billboard();
+
+			billboard.setName(name);
+
+			oos.writeObject(MessageBuilder.build(null, null, GET_BILLBOARD, null, null,
+					null, null, null, null, null, null, null, billboard));
+
+			// Start server listener in a separate thread because
+			// it could be delay before a response.
+			new Thread(new ServerListener(serverSocket, oos, this)).start();
+			lblError.setText("");
+			return true;
+		}
+
+		catch (UnknownHostException e) {
+			System.out.println("Exception: " + e.getMessage());
+			lblError.setText("Host found in " + NETWORK_PROPERTIES_FILENAME + " (" + host + ") is not valid.");
+		}
+		catch (IOException e) {
+			picLbl.setIcon(null);
+			msgLbl.setText("");
+			infLbl.setText("");
+			System.out.println("Exception: " + e.getMessage());
+			// If server is not connected show "./billboard03.xml"
 			try {
-				Socket serverSocket = new Socket(host, port);
-				ObjectOutputStream oos = new ObjectOutputStream(serverSocket.getOutputStream());
-				Billboard billboard = new Billboard();
-
-					billboard.setName(name);
-					oos.writeObject(MessageBuilder.build(null, null, GET_BILLBOARD, null, null,
-							null, null, null, null, null, null, null, billboard));
-
-					// Start server listener in a separate thread because
-					// it could be delay before a response.
-					new Thread(new ServerListener(serverSocket, oos, this)).start();
-					lblError.setText("");
-					return true;
-				}
-
-			catch (UnknownHostException e) {
-				System.out.println("Exception: " + e.getMessage());
-				lblError.setText("Host found in " + NETWORK_PROPERTIES_FILENAME + " (" + host + ") is not valid.");
+				Document doc = parseXML(Paths.get("./billboard03.xml"));
+				updateBillboard(doc);
+				billboardName = null;
+			} catch (Exception e1){
+				System.out.println(e1.getMessage());
 			}
-			catch (IOException e) {
-				picLbl.setIcon(null);
-				msgLbl.setText("");
-				infLbl.setText("");
-				System.out.println("Exception: " + e.getMessage());
-				// If server is not connected show "./billboard03.xml"
-				try {
-					Document doc = parseXML(Paths.get("./billboard03.xml"));
-					updateBillboard(doc);
-				} catch (Exception e1){
-					System.out.println(e1.getMessage());
-				}
-			}
-			catch (NumberFormatException e) {
-				System.out.println("Exception: " + e.getMessage());
-				lblError.setText("Port found in " + NETWORK_PROPERTIES_FILENAME + " (" + port + ") is not valid.");
-			}
-			return false;
+		}
+		catch (NumberFormatException e) {
+			System.out.println("Exception: " + e.getMessage());
+			lblError.setText("Port found in " + NETWORK_PROPERTIES_FILENAME + " (" + port + ") is not valid.");
+		}
+		return false;
 	}
 
 	/**
@@ -183,43 +191,51 @@ public class GUI extends JFrame {
 	 * @param file the file
 	 * @param filename the filename
 	 */
-	public void updateBillboard(byte[] file, String filename) {
-		//System.out.println("File: " + file);
-		// If there is  Billboard scheduled
-		msgLbl.setText("");
-		infLbl.setText("");
-		picLbl.setIcon(null);
-		// Added by Fernando
-		if (file != null){
-			// Status message from billboard retrieved from the serve:
-			System.out.println("Billboard retrieved from the server ");
-			try {
-				// Update billboard xml file. Updated file is stored in the root of the project.
-				Path xmlPath = Files.write(Paths.get(filename), file);
-				Document doc = parseXML(xmlPath);
-				updateBillboard(doc);
+	public void updateBillboard(byte[] file, String filename, Billboard billboard) {
 
-			} catch (IOException e) {
-				lblError.setText(e.getMessage());
-			} catch (ParserConfigurationException e) {
-				lblError.setText(e.getMessage());
-			} catch (SAXException e) {
-				lblError.setText(e.getMessage());
+		if (billboardName == null || !billboardName.equals(billboard.getName())){
+
+			//System.out.println("File: " + file);
+			// If there is  Billboard scheduled
+			msgLbl.setText("");
+			infLbl.setText("");
+			picLbl.setIcon(null);
+			// Added by Fernando
+			if (file != null){
+				// Status message from billboard retrieved from the serve:
+				System.out.println("Billboard retrieved from the server ");
+				try {
+					// Update billboard xml file. Updated file is stored in the root of the project.
+					Path xmlPath = Files.write(Paths.get(filename), file);
+					Document doc = parseXML(xmlPath);
+					updateBillboard(doc);
+					this.billboardName = billboard.getName();
+				} catch (IOException e) {
+					lblError.setText(e.getMessage());
+				} catch (ParserConfigurationException e) {
+					lblError.setText(e.getMessage());
+				} catch (SAXException e) {
+					lblError.setText(e.getMessage());
+				}
 			}
-		}
-		// If there is no Billboard scheduled 																			// Added by Fernando
-		else {
-			// Status message from billboard retrieved from the serve:
-			System.out.println("No scheduled billboard ");
-			try {
+			// If there is no Billboard scheduled 																			// Added by Fernando
+			else {
+				// Status message from billboard retrieved from the serve:
+				System.out.println("No scheduled billboard ");
+				try {
 
-				Document doc = parseXML(Paths.get("./billboard02.xml"));
-				updateBillboard(doc);
-			} catch (Exception e1){
-				System.out.println(e1.getMessage());
+					Document doc = parseXML(Paths.get("./billboard02.xml"));
+					updateBillboard(doc);
+					billboardName = null;
+				} catch (Exception e1){
+					System.out.println(e1.getMessage());
+				}
+
 			}
 
+
 		}
+
 
 	}
 
@@ -248,20 +264,20 @@ public class GUI extends JFrame {
 	 */
 	public void updateBillboard(Document doc) throws MalformedURLException, DOMException {
 
-	// If the billboard node has a ‘background’ attribute, this will be interpreted
-	// as the colour to display for the entire billboard’s background (that is, all
-	// parts of the screen that are not text or an image.)
-	// If the ‘background’ attribute is not supplied, use an appropriate default.
+		// If the billboard node has a ‘background’ attribute, this will be interpreted
+		// as the colour to display for the entire billboard’s background (that is, all
+		// parts of the screen that are not text or an image.)
+		// If the ‘background’ attribute is not supplied, use an appropriate default.
 		String background = doc.getDocumentElement().getAttribute("background");
 		if (background != null) {
 			mainPnl.setBackground(Color.decode(background));
 		}
 
-	// Define variables to keep track what tags are present inside
-	// <billboard>.
-		boolean msgAttr = false;
-		boolean picAttr = false;
-		boolean infAttr = false;
+		// Define variables to keep track what tags are present inside
+		// <billboard>.
+		msgAttr = false;
+		picAttr = false;
+		infAttr = false;
 
 		NodeList nodeList = doc.getDocumentElement().getChildNodes();
 		for (int i = 0; i < nodeList.getLength(); i++) {
@@ -270,30 +286,30 @@ public class GUI extends JFrame {
 
 				msgAttr = true;
 
-	// Used to show the primary text of the billboard.
-	// This text will be displayed in a large font size so it
-	// will be clearly visible- however, the text must all fit
-	// on one line, with no line breaks.
+				// Used to show the primary text of the billboard.
+				// This text will be displayed in a large font size so it
+				// will be clearly visible- however, the text must all fit
+				// on one line, with no line breaks.
 				msgLbl.setText(node.getTextContent());
 				msgLbl.setFont(new Font("Times New Roman", Font.BOLD, 12));
 
-	// If the message node has a ‘colour’ attribute, this will
-	// be interpreted as the colour to display the message text using.
-	// If the ‘colour’ attribute is not supplied, use an appropriate default.
+				// If the message node has a ‘colour’ attribute, this will
+				// be interpreted as the colour to display the message text using.
+				// If the ‘colour’ attribute is not supplied, use an appropriate default.
 				Node colour = node.getAttributes().getNamedItem("colour");
 				if (colour != null) {
 					msgLbl.setForeground(Color.decode(colour.getTextContent()));
 				}
 
-	// Used to show a picture, which will be scaled to an appropriate size
-	// and displayed on the billboard.
+				// Used to show a picture, which will be scaled to an appropriate size
+				// and displayed on the billboard.
 			} else if (node.getNodeName().equals("picture")) {
 
 				picAttr = true;
 
-	// The picture node will have one of two attributes: url and data.
-	// A picture node with neither of these attributes is invalid, as
-	// is a picture node with both.
+				// The picture node will have one of two attributes: url and data.
+				// A picture node with neither of these attributes is invalid, as
+				// is a picture node with both.
 				Node url = node.getAttributes().getNamedItem("url");
 				Node data = node.getAttributes().getNamedItem("data");
 				if (url != null && data == null) {
@@ -306,16 +322,16 @@ public class GUI extends JFrame {
 
 				infAttr = true;
 
-	// Used to show larger amounts of text information. This text can
-	// be broken across multiple lines for display purposes. This text
-	// should be shown at a smaller font size than the message tag.
+				// Used to show larger amounts of text information. This text can
+				// be broken across multiple lines for display purposes. This text
+				// should be shown at a smaller font size than the message tag.
 				infLbl.setText(node.getTextContent());
 
-	// If the information node has a ‘colour’ attribute, this
-	// will be interpreted as the colour to display the information
-	// text using. If the ‘colour’ attribute is not supplied, use an appropriate
-	// default.
-					Node colour = node.getAttributes().getNamedItem("colour");
+				// If the information node has a ‘colour’ attribute, this
+				// will be interpreted as the colour to display the information
+				// text using. If the ‘colour’ attribute is not supplied, use an appropriate
+				// default.
+				Node colour = node.getAttributes().getNamedItem("colour");
 				if (colour != null) {
 					infLbl.setForeground(Color.decode(colour.getTextContent()));
 				}
@@ -493,10 +509,10 @@ public class GUI extends JFrame {
 
 	/**
 	 * Gets the scaled image.
-	 *
 	 * @return the scaled image
 	 */
 	public Image getScaledImage() {
+		Image scaledImg = null;
 		Image img = ((ImageIcon) picLbl.getIcon()).getImage();
 		int imgWidth = img.getWidth(null);
 		int imgHeight = img.getHeight(null);
@@ -514,8 +530,17 @@ public class GUI extends JFrame {
 			imgWidth *= widthRatio;
 			imgHeight *= heightRatio;
 		}
+		if(msgAttr && picAttr && infAttr){
+			double percentage = 0.4;
+			int widthReduction= (int) (imgWidth - (imgWidth*percentage));
+			int heightReduction = (int) (imgHeight - (imgHeight*percentage));
 
-		Image scaledImg = img.getScaledInstance(imgWidth, imgHeight, java.awt.Image.SCALE_SMOOTH);
+			scaledImg = img.getScaledInstance(widthReduction,heightReduction, java.awt.Image.SCALE_SMOOTH);
+			System.out.println("Attributes: " + msgAttr + ", " + picAttr + ", " + infAttr);  // DEbug ++++++++++++++++++++++++++++++++++++++++++
+		}
+		else{
+			scaledImg = img.getScaledInstance(imgWidth, imgHeight, java.awt.Image.SCALE_SMOOTH);
+		}
 		return scaledImg;
 	}
 
@@ -532,7 +557,7 @@ public class GUI extends JFrame {
 
 		int lblWidth = (int) msgLbl.getPreferredSize().getWidth();
 
-// Calculate width scale.
+		// Calculate width scale.
 		double widthScale = (double) lblWidth / (double) textWidth;
 
 		int newSize = (int) (curFont.getSize() * widthScale);

@@ -1,3 +1,4 @@
+
 import common.Billboard;
 import common.Schedule;
 import common.User;
@@ -30,6 +31,13 @@ public class DB {
 
 	/** The props. */
 	private static Properties props = new Properties();
+
+	/** The props. */
+	private static String currentBillboardName ;
+
+	public static String getCurrentBillboardName(){
+		return executeGetSchedule();
+	}
 
 	// ---------------------------------------- DATABASE CONNECTION ---------------------------------------------------
 
@@ -66,7 +74,7 @@ public class DB {
 
 			try (Connection conn = DriverManager.getConnection(props.getProperty("jdbc.url"),
 					props.getProperty("jdbc.username"), props.getProperty("jdbc.password"));
-					Statement stmt = conn.createStatement()) {
+				 Statement stmt = conn.createStatement()) {
 				List<String> lines = Files
 						.readAllLines(Paths.get(DB.class.getResource(DATABASE_SCRIPT_FILENAME).toURI()));
 				for (String line : lines) {
@@ -84,11 +92,11 @@ public class DB {
 	 * @throws SQLException the SQL exception
 	 */
 	public static void addBillboard(Billboard billboard) throws SQLException {
-		System.out.println(billboard);
+		//System.out.println(billboard);
 		LocalDateTime localDate = LocalDateTime.now();
 		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("YYYY-MM-dd HH:mm:ss");
 		String currentDate =  dtf.format(localDate).toString();
-		System.out.println(currentDate);
+		//System.out.println(currentDate);
 
 		try (Connection conn = getConnection();
 			 PreparedStatement stmt = conn.prepareStatement("insert into billboard value(?,?,?,?)")) {
@@ -190,7 +198,7 @@ public class DB {
 	 */
 	public static String getPassword(String username) throws SQLException {
 		try (Connection conn = getConnection();
-				PreparedStatement stmt = conn.prepareStatement("select password from user where username=?")) {
+			 PreparedStatement stmt = conn.prepareStatement("select password from user where username=?")) {
 			stmt.setString(1, username);
 			try (ResultSet rs = stmt.executeQuery()) {
 				if (rs.next()) {
@@ -205,14 +213,13 @@ public class DB {
 
 	/**
 	 * Gets the permission.
-	 *
 	 * @param username the username
 	 * @return the permission
 	 * @throws SQLException the SQL exception
 	 */
 	public static User getPermission(String username) throws SQLException {   /// Old code: public static String getPermission(String username) throws SQLException {
 		try (Connection conn = getConnection();
-				PreparedStatement stmt = conn.prepareStatement("select * from user where username=?")) {  //Old code: "select permission from user where username=?"
+			 PreparedStatement stmt = conn.prepareStatement("select * from user where username=?")) {  //Old code: "select permission from user where username=?"
 			stmt.setString(1, username);
 			try (ResultSet rs = stmt.executeQuery()) {
 				if (rs.next()) {
@@ -245,7 +252,7 @@ public class DB {
 	public static void addSalt(String username, String salt) throws SQLException {
 
 		try (Connection conn = getConnection();
-				PreparedStatement stmt = conn.prepareStatement("insert into salt value(?,?)")) {
+			 PreparedStatement stmt = conn.prepareStatement("insert into salt value(?,?)")) {
 			stmt.setString(1, username);
 			stmt.setString(2, salt);
 			stmt.executeUpdate();
@@ -280,16 +287,16 @@ public class DB {
 	 * @throws SQLException the SQL exception
 	 */
 	public static void addSchedule(Schedule sched) throws SQLException {
-		System.out.println("Schedule name_billboard: " + sched.getIdBillboard());
-		System.out.println("Schedule date_time_start: " + sched.getDateTimeStart());
-		System.out.println("Schedule date_time_finish: " + sched.getDateTimeFinish());
-		System.out.println("Schedule created_by: " + sched.getScheduleCreatedBy());
+		//System.out.println("Schedule name_billboard: " + sched.getIdBillboard());
+		//System.out.println("Schedule date_time_start: " + sched.getDateTimeStart());
+		//System.out.println("Schedule date_time_finish: " + sched.getDateTimeFinish());
+		//System.out.println("Schedule created_by: " + sched.getScheduleCreatedBy());
 
 
 		try (Connection conn = getConnection();
 			 PreparedStatement stmt = conn.prepareStatement(
-						//"insert into schedule (date_time, duration, `repeat`, name_billboard) value(?,?,?,?)")) {		// Old code
-			"insert into schedule (name_billboard, date_time_start," + "date_time_finish, schedule_create_by) value(?,?,?,?)")) {									// New code
+					 //"insert into schedule (date_time, duration, `repeat`, name_billboard) value(?,?,?,?)")) {		// Old code
+					 "insert into schedule (name_billboard, date_time_start," + "date_time_finish, schedule_create_by) value(?,?,?,?)")) {									// New code
 			stmt.setString   (1, sched.getIdBillboard());
 			stmt.setString   (2, sched.getDateTimeStart());												// New code
 			stmt.setString   (3, sched.getDateTimeFinish());												// New code
@@ -447,44 +454,41 @@ public class DB {
 	}
 
 	/**
+	 * @author Fernando Barbosa Silva
 	 * Update user.
-	 *
 	 * @param user the user
 	 * @throws SQLException the SQL exception
 	 */
 	public static void updateUser(User user) throws SQLException {
 		if(user.getPassword().isEmpty()){
-			System.out.println("Password is empty");
+			//System.out.println("Password is empty");
 			try (Connection conn = getConnection();
 				 PreparedStatement stmt = conn
-						 //.prepareStatement("update user set password=?, permission=? where " + "username=?")) {             // Old Code
-						 .prepareStatement("update user set permission=?, administrator=?, " +			      // New code
-								 "create_billboards=?, edit_all_billboards=?, schedule_billboards=?, edit_users=?" +		  // New code
+						 .prepareStatement("update user set permission=?, administrator=?, " +
+								 "create_billboards=?, edit_all_billboards=?, schedule_billboards=?, edit_users=?" +
 								 " where " + "username=?")) {
 
 				stmt.setString (1, user.getPermission());
-				stmt.setBoolean(2, user.getAdministrator());													  // New code
-				stmt.setBoolean(3, user.getCreate_billboards());												  // New code
-				stmt.setBoolean(4, user.getEdit_all_billboards());											  // New code
-				stmt.setBoolean(5, user.getSchedule_billboards());											  // New code
-				stmt.setBoolean(6, user.getEdit_users());														  // New code
+				stmt.setBoolean(2, user.getAdministrator());
+				stmt.setBoolean(3, user.getCreate_billboards());
+				stmt.setBoolean(4, user.getEdit_all_billboards());
+				stmt.setBoolean(5, user.getSchedule_billboards());
 				stmt.setString (7, user.getUsername());
 				stmt.executeUpdate();
 			}
 		}else{
 			try (Connection conn = getConnection();
 				 PreparedStatement stmt = conn
-						 //.prepareStatement("update user set password=?, permission=? where " + "username=?")) {             // Old Code
-						 .prepareStatement("update user set password=?, permission=?, administrator=?, " +			      // New code
-								 "create_billboards=?, edit_all_billboards=?, schedule_billboards=?, edit_users=?" +		  // New code
+						 .prepareStatement("update user set password=?, permission=?, administrator=?, " +
+								 "create_billboards=?, edit_all_billboards=?, schedule_billboards=?, edit_users=?" +
 								 " where " + "username=?")) {
 				stmt.setString (1, user.getPassword());
 				stmt.setString (2, user.getPermission());
-				stmt.setBoolean(3, user.getAdministrator());													  // New code
-				stmt.setBoolean(4, user.getCreate_billboards());												  // New code
-				stmt.setBoolean(5, user.getEdit_all_billboards());											  // New code
-				stmt.setBoolean(6, user.getSchedule_billboards());											  // New code
-				stmt.setBoolean(7, user.getEdit_users());														  // New code
+				stmt.setBoolean(3, user.getAdministrator());
+				stmt.setBoolean(4, user.getCreate_billboards());
+				stmt.setBoolean(5, user.getEdit_all_billboards());
+				stmt.setBoolean(6, user.getSchedule_billboards());
+				stmt.setBoolean(7, user.getEdit_users());
 				stmt.setString (8, user.getUsername());
 				stmt.executeUpdate();
 			}
@@ -504,6 +508,7 @@ public class DB {
 	public static byte[] getXML(String nameBillboard) throws SQLException {
 
 		String billboard = executeGetSchedule();
+
 		//System.out.println("BillboardName :" + billboard);
 
 		try (Connection conn = getConnection();
@@ -512,7 +517,6 @@ public class DB {
 			stmt.setString(1, billboard);
 			try (ResultSet rs = stmt.executeQuery()) {
 				if (rs.next()) {
-					System.out.println("Result: " + rs);
 					return rs.getBytes(1);
 				}
 			}
@@ -532,7 +536,7 @@ public class DB {
 		LocalDateTime localDate = LocalDateTime.now();
 		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("YYYY-MM-dd HH:mm:ss");
 		String currentDate =  dtf.format(localDate).toString();
-		System.out.println(currentDate);
+		//System.out.println(currentDate);
 
 		// Query
 		String query = "SELECT * FROM schedule WHERE schedule_create_date=(" +
@@ -557,6 +561,7 @@ public class DB {
 			System.out.println("DB.executeGetSchedule(): " + e.getMessage());
 		}
 		//System.out.println("Billboard name:" + billboardName);
+		currentBillboardName = billboardName;
 		return billboardName;
 	}
 

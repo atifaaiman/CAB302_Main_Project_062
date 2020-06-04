@@ -40,6 +40,7 @@ public class SchedulesPanel extends JPanel {
 	private JTable tblAllSchedules = new JTable(tblMdlAllSchedules);
 	private JButton btnAddSchedule = new JButton("Add ");
 	private JButton btnLogout = new JButton("Logout");
+	private JButton btnHome = new JButton("Home");
 	private JButton btnDeleteSchedule = new JButton("Delete");
 	private JButton btnShowSchedule = new JButton("Show all schedules");
 	private JButton btnWeeksSchedules = new JButton("Week schedules");
@@ -132,6 +133,7 @@ public class SchedulesPanel extends JPanel {
 		JPanel pnlNorth = new JPanel(new GridLayout(1, 2));
 		pnlNorth.add(new JLabel("Schedule list:", SwingConstants.LEFT));
 		JPanel pnlLogout = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+		pnlLogout.add(btnHome);
 		pnlLogout.add(btnLogout);
 		pnlNorth.add(pnlLogout);
 		add(pnlNorth, BorderLayout.NORTH);
@@ -634,6 +636,14 @@ public class SchedulesPanel extends JPanel {
 	 */
 	public JTable getTblAllSchedules (){
 		return tblAllSchedules;
+	}
+
+	/**
+	 * Gets home button
+	 * @return home button.
+	 */
+	public  JButton getBtnHome(){
+		return  btnHome;
 	}
 
 }

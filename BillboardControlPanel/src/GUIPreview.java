@@ -58,6 +58,12 @@ public class GUIPreview extends JPanel {
 	/** The information label. */
 	private JLabel infLbl = new JLabel("", SwingConstants.CENTER);
 
+	// Define variables to keep track what tags are present inside
+	// <billboard>.
+	private boolean msgAttr;
+	private boolean picAttr;
+	private boolean infAttr;
+
 	/**
 	 * Instantiates a new GUI preview.
 	 */
@@ -110,9 +116,9 @@ public class GUIPreview extends JPanel {
 
 		// Define variables to keep track what tags are present inside
 		// <billboard>.
-		boolean msgAttr = false;
-		boolean picAttr = false;
-		boolean infAttr = false;
+		msgAttr = false;
+		picAttr = false;
+		infAttr = false;
 
 		NodeList nodeList = doc.getDocumentElement().getChildNodes();
 		for (int i = 0; i < nodeList.getLength(); i++) {
@@ -344,10 +350,10 @@ public class GUIPreview extends JPanel {
 
 	/**
 	 * Gets the scaled image.
-	 *
 	 * @return the scaled image
 	 */
 	public Image getScaledImage() {
+		Image scaledImg = null;
 		Image img = ((ImageIcon) picLbl.getIcon()).getImage();
 		int imgWidth = img.getWidth(null);
 		int imgHeight = img.getHeight(null);
@@ -365,8 +371,17 @@ public class GUIPreview extends JPanel {
 			imgWidth *= widthRatio;
 			imgHeight *= heightRatio;
 		}
+		if(msgAttr && picAttr && infAttr){
+			double percentage = 0.4;
+			int widthReduction= (int) (imgWidth - (imgWidth*percentage));
+			int heightReduction = (int) (imgHeight - (imgHeight*percentage));
 
-		Image scaledImg = img.getScaledInstance(imgWidth, imgHeight, java.awt.Image.SCALE_SMOOTH);
+			scaledImg = img.getScaledInstance(widthReduction,heightReduction, java.awt.Image.SCALE_SMOOTH);
+			System.out.println("Attributes: " + msgAttr + ", " + picAttr + ", " + infAttr);
+		}
+		else{
+			scaledImg = img.getScaledInstance(imgWidth, imgHeight, java.awt.Image.SCALE_SMOOTH);
+		}
 		return scaledImg;
 	}
 

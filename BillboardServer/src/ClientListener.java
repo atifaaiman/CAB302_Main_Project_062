@@ -1,3 +1,4 @@
+
 import static common.Message.*;
 
 import java.io.IOException;
@@ -53,6 +54,9 @@ public class ClientListener implements Runnable {
 
 	/** The Constant SESSION_PERIOD. */
 	private final static long SESSION_PERIOD = 24 * 60 * 60 * 1000;
+
+	/** The name of the buillboard sento to the clients. */
+	private String billboardName = null;
 
 	/**
 	 * Instantiates a new client listener.
@@ -170,7 +174,8 @@ public class ClientListener implements Runnable {
 		}
 	}
 
-   // -------------------------------------------- BILLBOARDS ----------------------------------------------------------
+
+	// -------------------------------------------- BILLBOARDS ----------------------------------------------------------
 	/**
 	 * Adds the billboard. First, checks permission, then adds author (username) who
 	 * creates a billboard, finally connects to the database to add a new entry to
@@ -182,19 +187,19 @@ public class ClientListener implements Runnable {
 	 * @throws SQLException the SQL exception
 	 */
 	private void addBillboard(Message msg, ObjectOutputStream oos) throws IOException, SQLException {
-		//if (msg.token() != null && tokenPermissionMap.get(msg.token()).equals(Permission.CREATE_BILLBOARDS)) { 		// Old code
-		if (msg.token() != null && tokenPermissionMap.get(msg.token()).getCreate_billboards().equals(true)) {	  		// New code
+
+		if (msg.token() != null && tokenPermissionMap.get(msg.token()).getCreate_billboards().equals(true)) {
 			String username = tokenUserMap.get(msg.token());
 			Billboard billboard = msg.billboard();
 			billboard.setUsername(username);
 
-			// If billboard name does not exist  																		// New Added by Fernando
-			if( !DB.doesBillboardNameExist(billboard.getName())){  														// New added by Fernando
-				DB.addBillboard(billboard);																				// New added by Fernando
+			// If billboard name does not exist
+			if( !DB.doesBillboardNameExist(billboard.getName())){
+				DB.addBillboard(billboard);
 			}
 			else{
-				oos.writeObject(MessageBuilder.build(null, null, FAILED_BILLBOARD_EXISTS, null, null,					// New added by Fernando
-						msg.token(), null, null, null, null, null, null, null));		// New added by Fernando
+				oos.writeObject(MessageBuilder.build(null, null, FAILED_BILLBOARD_EXISTS, null, null,
+						msg.token(), null, null, null, null, null, null, null));
 			}
 
 
@@ -243,7 +248,7 @@ public class ClientListener implements Runnable {
 				 * delete any billboard on the system, including billboards that are currently
 				 * scheduled.
 				 */
-			//} else if (tokenPermissionMap.get(msg.token()).equals(Permission.EDIT_ALL_BILLBOARDS)) {      // Old code
+				//} else if (tokenPermissionMap.get(msg.token()).equals(Permission.EDIT_ALL_BILLBOARDS)) {      // Old code
 			}
 			if (tokenPermissionMap.get(msg.token()).getEdit_all_billboards().equals(true)) {         		// New code
 				// System.out.println("Calling DB.updateBillboard...");
@@ -283,7 +288,7 @@ public class ClientListener implements Runnable {
 				 * delete any billboard on the system, including billboards that are currently
 				 * scheduled.
 				 */
-			//} else if (tokenPermissionMap.get(msg.token()).equals(Permission.EDIT_ALL_BILLBOARDS)) {  // Old code
+				//} else if (tokenPermissionMap.get(msg.token()).equals(Permission.EDIT_ALL_BILLBOARDS)) {  // Old code
 			} else if (tokenPermissionMap.get(msg.token()).getEdit_all_billboards().equals(true)) {		// New code
 
 				DB.deleteBillboard(msg.billboard().getName());
@@ -304,10 +309,12 @@ public class ClientListener implements Runnable {
 	 */
 	private void sendBillboard(Message msg, ObjectOutputStream oos) throws IOException, SQLException {
 		Billboard b = msg.billboard();
+		String bName = DB.getCurrentBillboardName();
+		b.setName(bName);
 
 		byte[] xml = DB.getXML(b.getName());
 		oos.writeObject(MessageBuilder.build("billboard.xml", xml, msg.command(), null, null,
-				null, null, null, null, null, null, null, null));
+				null, null, null, null, null, null, null, b));
 	}
 
 
@@ -464,26 +471,24 @@ public class ClientListener implements Runnable {
 	 */
 	private void updateUser(Message msg, ObjectOutputStream oos)
 			throws SQLException, IOException, NoSuchAlgorithmException {
+		User user = msg.user();
 
-		//if (msg.token() != null && tokenPermissionMap.get(msg.token()).equals("Edit Users")) {  						// Old code
-		if (msg.token() != null && tokenPermissionMap.get(msg.token()).getEdit_users().equals(true)) {  				// New code
-
+		if ((msg.token() != null && tokenPermissionMap.get(msg.token()).getEdit_users().equals(true))  ||
+				((msg.token() != null && tokenPermissionMap.get(msg.token()).getUsername().equals(msg.user().getUsername())))
+		) {
 			/*
 			 * Administrators will not be able to remove their own “Edit Users” permission-
 			 * however they can remove the “Edit Users” permission from other
 			 * administrators.
 			 */
-			if (msg.user().getUsername().equals(tokenUserMap.get(msg.token()))) { 										// If update himself.
-				//if (!msg.user().getPermission().equals(tokenPermissionMap.get(msg.token()))) { 						// Old code
-				if (!msg.user().getEdit_users().equals(tokenPermissionMap.get(msg.token()).getEdit_users())) {			// New user
+			if (msg.user().getUsername().equals(tokenUserMap.get(msg.token()))) {
+				if (!msg.user().getEdit_users().equals(tokenPermissionMap.get(msg.token()).getEdit_users())) {
 					oos.writeObject(MessageBuilder.build(null, null, NO_PERMISSION,
 							null, null, msg.token(), null, null,
 							null, null, null, null, null));
 					return;
 				}
 			}
-			User user = msg.user();
-
 			if (!user.getOldPassword().equals(user.getPassword())) {
 				String salt = DB.getSalt(msg.user().getUsername()); // Obtain salt from database.
 				user.setPassword(user.getPassword() + salt); 		// Add salt.
@@ -514,7 +519,7 @@ public class ClientListener implements Runnable {
 	private void users(Message msg, ObjectOutputStream oos) throws IOException, SQLException {
 
 		//if (msg.token() != null && tokenPermissionMap.get(msg.token())..equals("Edit Users")) {   						// Old code
-		if (msg.token() != null && tokenPermissionMap.get(msg.token()).getEdit_users().equals(true)) {  					// New user
+		if (msg.token() != null){ //&& tokenPermissionMap.get(msg.token()).getEdit_users().equals(true)) {  					// New user
 			oos.writeObject(MessageBuilder.build(null, null, USERS, null, null, msg.token(),
 					null, DB.getUsers(), null, null, null, null, null));
 		} else {
@@ -526,7 +531,7 @@ public class ClientListener implements Runnable {
 		}
 	}
 
-    // ------------------------------------------------  LOGIN  --------------------------------------------------------
+	// ------------------------------------------------  LOGIN  --------------------------------------------------------
 
 	/**
 	 * Logins the user. Checks credentials in database, the retrieves permission and
@@ -601,7 +606,7 @@ public class ClientListener implements Runnable {
 					tokenPermissionMap.put(token, user);  				// New code
 
 					oos.writeObject(MessageBuilder.build(null, null, LOGIN, msg.username(), null, token, user.getPermission(),  // Old code: permission
-							null, null, null, null, null, null));
+							null, user, null, null, null, null));
 					return;
 				}
 			}
@@ -632,6 +637,7 @@ public class ClientListener implements Runnable {
 					msg.token(), null, null, null, null, null, null, null));
 		}
 	}
+
 
 
 }

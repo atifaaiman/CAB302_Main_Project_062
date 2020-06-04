@@ -1,9 +1,8 @@
+import common.User;
+
 import java.awt.CardLayout;
-import java.time.LocalDateTime;
 
 import javax.swing.*;
-
-import static javax.swing.JOptionPane.PLAIN_MESSAGE;
 
 /**
  * The Class GUI that encapsulates user interface
@@ -18,37 +17,29 @@ public class GUI extends JFrame {
 	 * All billboards, users, schedules are being updated every 3 seconds.
 	 */
 	public final static int UPDATE_DELAY = 3_000;  // Old code 3_000
-
 	/** The main panel. */
 	private JPanel mainPanel = new JPanel();
-
 	/** The login panel. */
 	private LoginPanel loginPanel = new LoginPanel();
-
 	/** The users panel. */
 	private UsersPanel usersPanel = new UsersPanel();
-
 	/** The billboard panel. */
 	private BillboardsPanel billboardPanel = new BillboardsPanel();
-
 	/** The schedules panel. */
 	private SchedulesPanel schedulesPanel = new SchedulesPanel();
-
 	/** The card layout. */
 	private CardLayout cardLayout = new CardLayout();
-
-
+	/** The home panel. */
+	private HomePanel homePanel = new HomePanel();
 
 	/**
 	 * Instantiates a new gui.
-	 *
 	 * @param title the title
 	 */
 	public GUI(String title) {
 		super(title);
 
-		initGUIComponents(); 				// Old Code
-
+		initGUIComponents();
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 		setResizable(true);
 		pack();
@@ -59,9 +50,11 @@ public class GUI extends JFrame {
 	 * Inits the GUI components.
 	 */
 	private void initGUIComponents() {
+
 		mainPanel.setLayout(cardLayout);
 
 		mainPanel.add(loginPanel, "Login");
+		mainPanel.add(homePanel,"Home Panel");
 		mainPanel.add(usersPanel, "Users");
 		mainPanel.add(billboardPanel, "Billboards");
 		mainPanel.add(schedulesPanel, "Schedules");
@@ -76,9 +69,12 @@ public class GUI extends JFrame {
 	/**
 	 * Shows login panel.
 	 */
-	public void showLogin() {
-		cardLayout.show(mainPanel, "Login");
-	}
+	public void showLogin() { cardLayout.show(mainPanel, "Login"); }
+
+	/**
+	 * Shows login panel.
+	 */
+	public void showHome() { cardLayout.show(mainPanel, "Home Panel"); }
 
 	/**
 	 * Shows billboards panel.
@@ -142,31 +138,12 @@ public class GUI extends JFrame {
 		return billboardPanel;
 	}
 
-
-
-
-	public GUI() {
-		//initTest(); // Old Code
-		mainPanel.setLayout(cardLayout);
-		mainPanel.add(loginPanel, "Login");
-		mainPanel.add(usersPanel, "Users");
-		mainPanel.add(billboardPanel, "Billboards");
-		mainPanel.add(schedulesPanel, "Schedules");
-		add(mainPanel);
-		setDefaultCloseOperation(EXIT_ON_CLOSE);
-		setResizable(false);
-		pack();
-
-		setLocationRelativeTo(null);
+	/**
+	 * Gets the home panel.
+	 * @return the home panel
+	 */
+	public HomePanel getHomePanel() {
+		return homePanel;
 	}
-	public static void main(String[] args) {
-		InputCommandHandler inputCommandHandler = new InputCommandHandler();
-		OutputCommandHandler outputCommandHandler = new OutputCommandHandler();
-		// Next, run GUI.
-		SwingUtilities.invokeLater(() -> {
-			GUI gui = new GUI();
-			gui.getLoginPanel();
-			gui.setVisible(true);
-		});
-	}
+
 }

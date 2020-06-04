@@ -10,7 +10,6 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.xml.sax.SAXException;
 import common.Billboard;
 import common.Message;
-import common.Permission;
 import common.Schedule;
 import common.User;
 
@@ -89,12 +88,26 @@ public class Controller implements Observable {
 	 * Adds the listeners.
 	 */
 	private void addListeners() {
+		// Home Panel
+		gui.getHomePanel().getBtnLogout().addActionListener(e -> logout());
+		gui.getHomePanel().getBtnBillboards().addActionListener(e-> {
+			gui.showBillboards();
+		});
+		gui.getHomePanel().getBtnUsers().addActionListener(e-> {
+			gui.showUsers();
+		});
+		gui.getHomePanel().getBtnSchedules().addActionListener(e-> {
+			gui.showSchedules();
+		});
+
+
 		// Login Logout
 		gui.getLoginPanel().getBtnLogin().addActionListener(e -> login());
 		gui.getSchedulesPanel().getBtnLogout().addActionListener(e -> logout());
 		gui.getLoginPanel().getBtnClose().addActionListener(e -> closeLogin() );
 
 		// Schedule
+		gui.getSchedulesPanel().getBtnHome().addActionListener(e-> gui.showHome());
 		gui.getSchedulesPanel().getBtnAddSchedule().addActionListener(e -> {
 			updateScheduleList();
 			addSchedule();
@@ -116,6 +129,7 @@ public class Controller implements Observable {
 		});
 
 		// User Panel
+		gui.getUsersPanel().getBtnHome().addActionListener(e-> gui.showHome());
 		gui.getUsersPanel().getBtnShowUsers().addActionListener(e -> showUsers());												// Added by Fernando
 		gui.getUsersPanel().getBtnDeleteUser().addActionListener(e -> {
 			deleteUser(rowSelectedUserPanel);
@@ -138,6 +152,7 @@ public class Controller implements Observable {
 			}
 		});
 		// Billboard Panel
+		gui.getBillboardPanel().getBtnHome().addActionListener(e-> gui.showHome());
 		gui.getBillboardPanel().getBtnShowBillboards().addActionListener(e -> showBillboards());							    // Added by Fernando
 		gui.getBillboardPanel().getBtnDeleteBillboard().addActionListener(e -> deleteBillboard(rowSelectedBillboardPanel));		// Added by Fernando
 		gui.getBillboardPanel().getBtnEditBillboard().addActionListener(e -> editBillboard(rowSelectedBillboardPanel));			// Added by Fernando
@@ -154,7 +169,6 @@ public class Controller implements Observable {
 				gui.getBillboardPanel().getBtnDeleteBillboard().setEnabled(true);	// Test
 				gui.getBillboardPanel().getBtnPreviewBillboard().setEnabled(true);	// Test
 				gui.getBillboardPanel().getBtnExportXml().setEnabled(true);			// Test
-				//System.out.println("Row number: " + rowSelectedBillboardPanel);
 			}
 		});
 		gui.getBillboardPanel().getBtnLogout().addActionListener(e -> logout());
@@ -246,7 +260,7 @@ public class Controller implements Observable {
 				}
 			} catch (Exception e) {
 				rowSelectedBillboardPanel = -1;
-				GUI.displayError(e.getMessage());
+				GUI.displayError("SERVER IS NOT AVAILABLE.\nPlease contact the system administrator.");
 			}
 		}
 	}
@@ -269,11 +283,11 @@ public class Controller implements Observable {
 					rowSelectedBillboardPanel = -1;
 				} catch (Exception exc) {
 					rowSelectedBillboardPanel = -1;
-					GUI.displayError(exc.getMessage());
+					GUI.displayError("SERVER IS NOT AVAILABLE.\nPlease contact the system administrator.");
 				}
 			} catch (IOException e) {
 				rowSelectedBillboardPanel = -1;
-				GUI.displayError(e.getMessage());
+				GUI.displayError("SERVER IS NOT AVAILABLE.\nPlease contact the system administrator.");
 			}
 		}
 	}
@@ -296,7 +310,7 @@ public class Controller implements Observable {
 				try {
 					outputCommandHandler.allBillboards(inputCommandHandler.getSessionToken());
 				} catch (Exception exc) {
-					GUI.displayError(exc.getMessage());
+					GUI.displayError("SERVER IS NOT AVAILABLE.\nPlease contact the system administrator.");
 				}
 
 			}
@@ -316,7 +330,7 @@ public class Controller implements Observable {
 			outputCommandHandler.allBillboards(inputCommandHandler.getSessionToken());
 			gui.getBillboardPanel().getBtnShowBillboards().setText("Update List");
 		} catch (Exception exc) {
-			GUI.displayError(exc.getMessage());
+			GUI.displayError("SERVER IS NOT AVAILABLE.\nPlease contact the system administrator.");
 		}
 	}
 
@@ -332,7 +346,7 @@ public class Controller implements Observable {
 					new String(gui.getLoginPanel().getPfPassword().getPassword()));
 					userName = gui.getLoginPanel().getTfUsername().getText();
 		} catch (NoSuchAlgorithmException | IOException e) {
-			GUI.displayError(e.getMessage());
+			GUI.displayError("SERVER IS NOT AVAILABLE.\nPlease contact the system administrator.");
 		}
 	}
 
@@ -344,7 +358,7 @@ public class Controller implements Observable {
 		try {
 			outputCommandHandler.logout(inputCommandHandler.getSessionToken());
 		} catch (IOException e) {
-			GUI.displayError(e.getMessage());
+			GUI.displayError("SERVER IS NOT AVAILABLE.\nPlease contact the system administrator.");
 		}
 	}
 
@@ -362,7 +376,7 @@ public class Controller implements Observable {
 				}
 			}
 		} catch (Exception e) {
-			GUI.displayError(e.getMessage());
+			GUI.displayError("SERVER IS NOT AVAILABLE.\nPlease contact the system administrator.");
 		}
 		updateScheduleList();
 	}
@@ -385,11 +399,11 @@ public class Controller implements Observable {
 					rowSelectedSchedulePanel = -1;
 				} catch (IOException exc) {
 					rowSelectedSchedulePanel = -1;
-					GUI.displayError(exc.getMessage());
+					GUI.displayError("SERVER IS NOT AVAILABLE.\nPlease contact the system administrator.");
 				}
 			} catch (NoSuchAlgorithmException | IOException e) {
 				rowSelectedSchedulePanel = -1;
-				GUI.displayError(e.getMessage());
+				GUI.displayError("SERVER IS NOT AVAILABLE.\nPlease contact the system administrator.");
 			}
 		}
 		updateScheduleList();
@@ -405,7 +419,7 @@ public class Controller implements Observable {
 			outputCommandHandler.allSchedules(inputCommandHandler.getSessionToken());
 
 		} catch (IOException exc) {
-			GUI.displayError(exc.getMessage());
+			GUI.displayError("SERVER IS NOT AVAILABLE.\nPlease contact the system administrator.");
 		}
 	}
 
@@ -425,7 +439,7 @@ public class Controller implements Observable {
 					GUI.displayError(exc.getMessage());
 				}
 			} catch (NoSuchAlgorithmException | IOException e) {
-				GUI.displayError(e.getMessage());
+				GUI.displayError("SERVER IS NOT AVAILABLE.\nPlease contact the system administrator.");
 			}
 		}
 		showUsers();
@@ -451,7 +465,7 @@ public class Controller implements Observable {
 					}
 				} catch (NoSuchAlgorithmException | IOException e) {
 					rowSelectedUserPanel = -1;
-					GUI.displayError(e.getMessage());
+					GUI.displayError("SERVER IS NOT AVAILABLE.\nPlease contact the system administrator.");
 				}
 			}
 		}
@@ -480,7 +494,7 @@ public class Controller implements Observable {
 				}
 			} catch (NoSuchAlgorithmException | IOException e) {
 				rowSelectedUserPanel = -1;
-				GUI.displayError(e.getMessage());
+				GUI.displayError("SERVER IS NOT AVAILABLE.\nPlease contact the system administrator.");
 			}
 		}
 	}
@@ -493,7 +507,7 @@ public class Controller implements Observable {
 			outputCommandHandler.allUsers(inputCommandHandler.getSessionToken());
 			gui.getUsersPanel().getBtnShowUsers().setText("Update List");
 		} catch (IOException exc) {
-			GUI.displayError(exc.getMessage());
+			GUI.displayError("SERVER IS NOT AVAILABLE.\nPlease contact the system administrator.");
 		}
 	}
 
@@ -541,30 +555,40 @@ public class Controller implements Observable {
 	 */
 	@Override
 	public void update(Message msg) {
+		User user = msg.user();
 
 		switch (msg.command()) {
-		case LOGIN:
+			case LOGIN:
 
-			gui.setTitle(msg.permission());
-			switch (msg.permission()) {
-			case Permission.EDIT_USERS:
-				gui.showUsers();
-				//timerUpdateUsers.start();         ///// Test **********************
-				break;
-			case Permission.CREATE_BILLBOARDS:
-				gui.showBillboards();
-				//timerUpdateBillboards.start();    ///// Test **********************
-				break;
-			case Permission.EDIT_ALL_BILLBOARDS:
-				gui.showBillboards();
-				timerUpdateBillboards.start();
-				break;
-			case Permission.SCHEDULE_BILLBOARDS:
-				gui.showSchedules();
-				//timerUpdateSchedules.start();		///// Test **********************
-				//timerUpdateBillboards.start();	///// Test **********************
-				break;
-			}
+				gui.setTitle("Home page");
+				gui.showHome();
+
+				if (user.getAdministrator().equals(true)){
+					gui.getHomePanel().getBtnSchedules().setEnabled(true);
+					gui.getHomePanel().getBtnBillboards().setEnabled(true);
+					gui.getHomePanel().getBtnUsers().setEnabled(true);
+				}
+				else{
+					if (user.getSchedule_billboards().equals(true)){
+						gui.getHomePanel().getBtnSchedules().setEnabled(true);
+						gui.getHomePanel().getBtnUsers().setEnabled(true);
+						gui.getHomePanel().getBtnBillboards().setEnabled(true);
+					}
+					if(user.getEdit_users().equals(true)){
+						gui.getHomePanel().getBtnUsers().setEnabled(true);
+					}
+					if(user.getEdit_all_billboards().equals(true)){
+						gui.getHomePanel().getBtnUsers().setEnabled(true);
+						gui.getHomePanel().getBtnBillboards().setEnabled(true);
+					}
+					if(user.getCreate_billboards().equals(true))
+					// Home panel buttons
+					gui.getHomePanel().getBtnBillboards().setEnabled(true);
+					gui.getHomePanel().getBtnUsers().setEnabled(true);
+
+				}
+
+
 			break;
 
 			case INVALID_CREDENTIALS:
@@ -582,12 +606,12 @@ public class Controller implements Observable {
 
 				break;
 			case LOGOUT:
-				//timerUpdateUsers.stop();																	// Test
-				//timerUpdateSchedules.stop();																// Test
-				//timerUpdateBillboards.stop();																// Test
 				gui.getLoginPanel().getPfPassword().setText("");
 				gui.showLogin();
 				gui.setTitle("Login");
+				gui.getHomePanel().getBtnSchedules().setEnabled(false);
+				gui.getHomePanel().getBtnBillboards().setEnabled(false);
+				gui.getHomePanel().getBtnUsers().setEnabled(false);
 				break;
 			case FAILED_USERNAME_EXISTS:
 				GUI.displayError("User not added. Username already exists.");

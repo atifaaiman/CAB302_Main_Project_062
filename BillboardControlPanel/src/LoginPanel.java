@@ -32,13 +32,10 @@ public class LoginPanel extends JPanel {
 	}
 
 	/**
+	 * author Fernando Barbosa Silva
 	 * Inits the GUI components.
 	 */
 	private void initGUIComponents() {
-
-		//setLayout(new GridLayout(3, 1, 10, 10));
-		//setBorder(BorderFactory.createEmptyBorder(300, 100, 300, 100));
-
 
 		Box box = Box.createVerticalBox();
 		JPanel panel_0 = new JPanel();

@@ -51,6 +51,7 @@ public class UsersPanel extends JPanel {
 	private JButton btnEditUser 			 = new JButton("Edit User");
 	private JButton btnDeleteUser 			 = new JButton("Delete User");
 	private JButton btnLogout 				 = new JButton("Logout");
+	private JButton btnHome				 	 = new JButton("Home");
 	private JPanel pnlAddUser 				 = new JPanel();
 	private JPanel pnlEditUser 				 = new JPanel();
 	private JComboBox<String> jcbPermissions = new JComboBox<>(new String[] { Permission.EDIT_USERS,
@@ -91,6 +92,7 @@ public class UsersPanel extends JPanel {
 				pnlLeft.add(new JLabel("List of users", SwingConstants.LEFT));
 				boxNorth.add(pnlLeft);
 			JPanel pnlRight = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+				pnlRight.add(btnHome);
 				pnlRight.add(btnLogout);
 				boxNorth.add(pnlRight);
 		add(boxNorth, BorderLayout.NORTH);
@@ -453,6 +455,14 @@ public class UsersPanel extends JPanel {
 	 */
 	public  JCheckBox getCbChangePasswordEditUser(){
 		return  cbChangePasswordEditUser;
+	}
+
+	/**
+	 * Gets home button
+	 * @return home button.
+	 */
+	public  JButton getBtnHome(){
+		return  btnHome;
 	}
 
 

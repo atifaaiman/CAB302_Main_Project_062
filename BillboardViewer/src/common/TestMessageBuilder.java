@@ -3,6 +3,7 @@ package common;
 
 
 import org.junit.Test;
+import org.junit.jupiter.api.DynamicTest;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,7 +19,7 @@ class TestMessageBuilder {
 	/**
 	 * Test build (full method).
 	 */
-	@org.junit.jupiter.api.Test
+	@Test
 	final void testBuild() {
 		byte[] file = new byte[4];
 		List<User> users = new ArrayList<>();

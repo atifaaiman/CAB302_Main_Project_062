@@ -38,6 +38,7 @@ public class BillboardsPanel extends JPanel {
 
 	/** Billboard Panel components Main Panel*/
 	private final JButton btnLogout 			= new JButton("Logout");
+	private final JButton btnHome 				= new JButton("Home");
 	private final JButton btnAddBillboard 		= new JButton("Add  ");
 	private final JButton btnShowBillboards		= new JButton("Show Billboards");
 	private final JButton btnEditBillboard 		= new JButton("Edit");
@@ -123,6 +124,7 @@ public class BillboardsPanel extends JPanel {
 		JPanel pnlNorthBillb = new JPanel(new GridLayout(1, 2));
 		pnlNorthBillb.add(new JLabel("Billboards", SwingConstants.LEFT));
 		JPanel pnlLogoutBillb = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+		pnlLogoutBillb.add(btnHome);
 		pnlLogoutBillb.add(btnLogout);
 		pnlNorthBillb.add(pnlLogoutBillb);
 		add(pnlNorthBillb, BorderLayout.NORTH);
@@ -953,6 +955,14 @@ public class BillboardsPanel extends JPanel {
 	 */
 	public  JButton getBtnExportXml(){
 		return btnExportXml;
+	}
+
+	/**
+	 * Gets home button
+	 * @return home button.
+	 */
+	public  JButton getBtnHome(){
+		return  btnHome;
 	}
 
 }

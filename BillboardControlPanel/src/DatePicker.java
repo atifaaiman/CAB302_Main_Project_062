@@ -1,3 +1,5 @@
+
+
 import java.awt.*;
 import java.awt.event.*;
 import java.text.ParseException;
@@ -6,8 +8,11 @@ import java.util.Date;
 import javax.swing.*;
 
 class DatePicker {
-    int month = java.util.Calendar.getInstance().get(java.util.Calendar.MONTH)+1;
-    int year = java.util.Calendar.getInstance().get(java.util.Calendar.YEAR);;
+    ReadPropsFile rpf = new ReadPropsFile();
+    int month = java.util.Calendar.getInstance().get(java.util.Calendar.MONTH);
+
+
+    int year = java.util.Calendar.getInstance().get(java.util.Calendar.YEAR);
     JLabel l = new JLabel("", JLabel.CENTER);
     String day = "";
     int dayInt;
@@ -16,6 +21,7 @@ class DatePicker {
     String date  = null;
 
     public DatePicker(JPanel parent) {
+
         d = new JDialog();
         d.setModal(true);
         String[] header = { "Sun", "Mon", "Tue", "Wed", "Thur", "Fri", "Sat" };
@@ -33,7 +39,7 @@ class DatePicker {
                         day = button[selection].getActionCommand();
                         d.dispose();
                         dayInt = Integer.parseInt(day);
-                        date = String.format("%02d",dayInt) +"/"+String.format("%02d",month)+"/"+year;
+                        date = String.format("%02d",dayInt) +"/"+String.format("%02d",month + 1 )+"/"+year;
                     }
                 });
             if (x < 7) {
@@ -90,11 +96,9 @@ class DatePicker {
         d.setTitle("Select Date");
     }
 
-
     public String getDate(){
         return date;
     }
 
 
 }
-

@@ -15,10 +15,8 @@ public class ServerListener implements Runnable {
 
 	/** The server socket. */
 	private Socket serverSocket;
-	
 	/** The input command handler. */
 	private InputCommandHandler inputCommandHandler;
-
 	/** The output command handler. */
 	private OutputCommandHandler outputCommandHandler;
 
@@ -54,14 +52,14 @@ public class ServerListener implements Runnable {
 			System.out.println("No server");
 
 		} catch (ClassNotFoundException e) {
-			GUI.displayError(e.getMessage());
+			GUI.displayError("SERVER IS NOT AVAILABLE.\nPlease contact the system administrator.");
 		} finally {
 			try {
 				if (serverSocket != null) {
 					serverSocket.close();
 				}
 			} catch (IOException e) {
-				GUI.displayError(e.getMessage());
+				GUI.displayError("SERVER IS NOT AVAILABLE.\nPlease contact the system administrator.");
 			}
 		}
 	}

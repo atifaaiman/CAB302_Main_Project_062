@@ -1,3 +1,4 @@
+
 import static common.Message.GET_BILLBOARD;
 
 import java.io.IOException;
@@ -11,6 +12,8 @@ import common.Message;
  * Listens for the incoming messages from server.
  */
 public class ServerListener implements Runnable {
+
+	private String billboardName = null;
 
 	/** The server socket. */
 	private Socket serverSocket;
@@ -70,8 +73,8 @@ public class ServerListener implements Runnable {
 	 */
 	public void processCommand(Message msg) {
 		switch (msg.command()) {
-		case GET_BILLBOARD:
-			gui.updateBillboard(msg.file(), msg.filename());
+			case GET_BILLBOARD:
+				gui.updateBillboard(msg.file(), msg.filename(),msg.billboard());
 		}
 	}
 
